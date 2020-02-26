@@ -16,6 +16,14 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
     var channel = $stateParams.channel;//sets channel to one sent from previous state
 
+function getName() {
+    document.getElementById('test').innerHTML = 
+    "Nickname: " + sessionStorage.getItem('nickname');
+}
+    vm.getName = getName;
+    getName();
+
+
     //action box texzt setter
     function actionUsed(resourceId){
         var target = vm.targetChannel;
@@ -41,7 +49,9 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
         }        
     }
 
+
     vm.actionUsed = actionUsed;
+
 
     //Car control starts here
     const DEFAULT_THROTTLE = 0;

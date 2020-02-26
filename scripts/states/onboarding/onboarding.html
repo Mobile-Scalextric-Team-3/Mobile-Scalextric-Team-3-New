@@ -1,5 +1,5 @@
 <form name="setup_form" ng-submit="onboarding.go(setup_form.$valid)">
-    Name <input type="text"></input><br>
+    Name <input type="text" id="name"></input><br>
     Channel <select ng-model="onboarding.channel" ng-options="x for (x,y) in onboarding.channels" required></select> <br>
     <input type="submit" value="Go" ng-disabled="steup_form.$invalid"></input>
 </form>
