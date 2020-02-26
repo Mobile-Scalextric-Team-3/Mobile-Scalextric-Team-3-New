@@ -20,11 +20,13 @@ function onboardingCtrl($rootScope, $state, mqttService, brokerDetails) {
     console.log(brokerDetails);
 
     vm.go = go;
+    vm.nickname = nickname;
 
     function go(valid) {
         if (!valid) {
             alert("Invalid Details")
         } else {
+            nickname();
             mqttService.initialize(brokerDetails.HOST, brokerDetails.PORT);
             mqttService.onConnectionLost(function () {
                 console.error("connection lost");
@@ -58,4 +60,9 @@ function onboardingCtrl($rootScope, $state, mqttService, brokerDetails) {
         }
 
     }
+}
+
+function nickname() {
+    var name = document.getElementById("name").value;
+    sessionStorage.setItem("nickname", name);
 }
