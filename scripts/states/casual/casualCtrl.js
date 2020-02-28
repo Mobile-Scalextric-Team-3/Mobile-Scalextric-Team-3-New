@@ -12,20 +12,21 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
     
     var vm = this;
 
-    var changed = false;
+    var changed = false;//variable for checking if user has changed to another webpage
 
     var channel = $stateParams.channel;//sets channel to one sent from previous state
 
-    
+    //getName function retrieves nickname from session data
     function getName() {
         document.getElementById('test').innerHTML = 
         "Nickname: " + sessionStorage.getItem('nickname');
     }
+    
     vm.getName = getName;
     getName();
 
 
-    //function controls action box
+    //function controls action box and displays the messages in it
     function actionUsed(resourceId){
         var target = vm.targetChannel;
         var div = angular.element(document.querySelector('#action'));
@@ -50,30 +51,13 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
         }        
     }
 
-
     vm.actionUsed = actionUsed;
 
-
-    //Car control starts here
+    //sets up throttle by defaulting it to 0
     const DEFAULT_THROTTLE = 0;
-
     vm.throttle = DEFAULT_THROTTLE;
     vm.actualThrottle = DEFAULT_THROTTLE;
     vm.resources = [];
-
-    /*
-    //sets target channels
-    vm.targetChannels = Array.apply(null, {
-        length: 2
-    }).map(Function.call, Number);
-    
-    //sets list to show all but the channel you are on
-    vm.targetChannels = vm.targetChannels.filter(targetChannel => targetChannel !== channel );
-    console.log(vm.targetChannels);
-
-    //default target channel -1
-    vm.targetChannel = -1;
-    */
 
     //sets target channel as the other channel in race
     if(channel == 0){
@@ -88,12 +72,11 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
     vm.stop = stop;
     vm.fireSpecialWeapon = fireSpecialWeapon;
 
-    //sets topic details
+    //sets topic details and the subscribes to them
     var throttleTopic = `${brokerDetails.UUID}/control/${channel}/throttle`;
     var getResourcesTopic = `${brokerDetails.UUID}/resources`;
     var resourceStateTopic = `${brokerDetails.UUID}/control/{channel}/{resourceId}/state`;
 
-    //subscribes to topics
     mqttService.subscribe(throttleTopic);
     mqttService.subscribe(getResourcesTopic);
 
@@ -110,7 +93,7 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
     //triggered when weapon button clicked
     function fireSpecialWeapon(resourceId) {
-        actionUsed(resourceId);
+        actionUsed(resourceId);//runs actionUsed function to send message to action box
         let payload = {
             "state": "requested",
             "target": vm.targetChannel
@@ -127,9 +110,8 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
             changed = true;
         }
     }
-
-
     
+    //sends mqtt messages to the console
     mqttService.onMessageArrived(function (message) {
 
         console.log(message);
@@ -137,6 +119,7 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
         if (message.topic === throttleTopic) {
             var throttle  = JSON.parse(message.payloadString);
 
+            //sets actual throttle to what mqtt sever says it is
             if(throttle.hasOwnProperty("throttle")){
                 vm.actualThrottle = throttle.throttle;
             }
