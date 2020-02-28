@@ -18,7 +18,7 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
     
     function getName() {
-        document.getElementById('test').innerHTML = 
+        document.getElementById('unique').innerHTML = 
         "Nickname: " + sessionStorage.getItem('nickname');
     }
     vm.getName = getName;
