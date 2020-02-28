@@ -87,5 +87,6 @@ run.$inject = [
 ]
 
 function run() {
-    console.log('Mobile Scalextric 3 by James Sweetland, Sam Lord, Olly Taylor and Nathan Butler');
+    console.log('Mobile Scalextric by Mobile Scalextric Team 3');
+    console.log('Designed by James Sweetland, Sam Lord, Olly Taylor and Nathan Butler');
 }
