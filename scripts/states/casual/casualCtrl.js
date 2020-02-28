@@ -18,7 +18,7 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
     //getName function retrieves nickname from session data
     function getName() {
-        document.getElementById('test').innerHTML = 
+        document.getElementById('unique').innerHTML = 
         "Nickname: " + sessionStorage.getItem('nickname');
     }
     
