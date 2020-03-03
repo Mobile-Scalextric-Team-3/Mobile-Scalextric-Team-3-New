@@ -14,7 +14,6 @@
         <div ng-repeat="resource in casual.resources track by $index">
             <button ng-model="casual.resources[$index]" ng-click="casual.fireSpecialWeapon(resource.id)">{{resource.name}}</button>
         </div>
-        <!--<select ng-model="casual.targetChannel" ng-options="c for c in casual.targetChannels" required></select>-->
     </div>    
 </div>
 <!--unique stores nickname entered on onboarding and displays it-->
