@@ -16,6 +16,18 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
     var channel = $stateParams.channel;//sets channel to one sent from previous state
 
+    var sensorChannel = 0;
+
+    var lap = 0;
+
+    //sets sensor channel
+    if(channel == 0){
+        sensorChannel = 2;
+    }
+    else if(channel == 1){
+        sensorChannel == 3;
+    }
+
     //getName function retrieves nickname from session data
     function getName() {
         document.getElementById('unique').innerHTML = 
@@ -27,7 +39,7 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
     //setChannel function sets name of channel and displays it in app
     function setChannel(){
-        var channelName = vm.channel;
+        var channelName;
         var div = angular.element(document.querySelector('#channel'));
         if(channel == 0){
             channelName = "Red"
@@ -92,8 +104,12 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
     var getResourcesTopic = `${brokerDetails.UUID}/resources`;
     var resourceStateTopic = `${brokerDetails.UUID}/control/{channel}/{resourceId}/state`;
 
+    var lapSensorTopic = `${brokerDetails.UUID}/sensors/${sensorChannel}`;
+
     mqttService.subscribe(throttleTopic);
     mqttService.subscribe(getResourcesTopic);
+
+    mqttService.subscribe(lapSensorTopic);
 
     //when the 'X' button is pressed
     function stop() {
@@ -145,6 +161,9 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
             });
             $scope.$apply();
         }
+        else if(message.topic === lapSensorTopic){
+            lapCount();
+        }
 
         if (vm.resources !== undefined) {
             vm.resources.forEach(resource => {
@@ -181,6 +200,13 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
         raceCtrl();
 
     });
+
+    function lapCount(){
+        var div = angular.element(document.querySelector('#laps-completed'));
+        lap++;
+        div.html('lap ' + lap);
+    }
+    vm.lapCount = lapCount;
     
 
     //watches for throttle change
