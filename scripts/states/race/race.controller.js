@@ -12,7 +12,7 @@
         
         var vm = angular.extend(this, {});
         
-   function weaponBox() {
+        function weaponBox() {
 
             var myArray = [
             "Oil Slick",
