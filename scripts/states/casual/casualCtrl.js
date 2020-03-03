@@ -20,6 +20,10 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
     var lap = 0;
 
+    var mili = 0;
+    var secs = 0;
+    var mins = 0;
+
     //sets sensor channel
     if(channel == 0){
         sensorChannel = 2;
@@ -173,7 +177,7 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
             })
         }
 
-        function raceCtrl() {
+        /*function raceCtrl() {
         
             var vm = angular.extend(this, {});
             
@@ -198,15 +202,55 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
         
         }
         raceCtrl();
+        */
 
     });
 
     function lapCount(){
         var div = angular.element(document.querySelector('#laps-completed'));
         lap++;
-        div.html('lap ' + lap);
+        div.html('Lap: ' + lap);
     }
     vm.lapCount = lapCount;
+
+    function stopclock(){
+        var div = angular.element(document.querySelector('#current-lap'));
+        var mili0;
+        var secs0;
+        var mins0;
+        mili++;
+        if(mili >= 99){
+            secs++;
+            mili=0;
+        }
+        if(secs >= 59){
+            mins++;
+            secs=0;
+        }
+
+        if(mili < 10){
+            mili0 = "0" + mili;
+        }
+        else{
+            mili0 = mili;
+        }
+
+        if(secs < 10){
+            secs0 = "0" + secs;
+        }
+        else{
+            secs0 = secs
+        }
+
+        if(mins < 10){
+            mins0 = "0" + mins;
+        }
+        else{
+            mins0 = mins;
+        }
+        div.html('Current Lap: '+ mins0 + ":"+ secs0 + ":" + mili0);
+    }
+    setInterval(stopclock, 10);
     
 
     //watches for throttle change
