@@ -25,6 +25,21 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
     vm.getName = getName;
     getName();
 
+    //setChannel function sets name of channel and displays it in app
+    function setChannel(){
+        var channelName = vm.channel;
+        var div = angular.element(document.querySelector('#channel'));
+        if(channel == 0){
+            channelName = "Red"
+        }
+        else if(channel == 1){
+            channelName = "Yellow"
+        }
+        div.html('Car: ' + channelName);
+    }
+    vm.setChannel = setChannel;
+    setChannel();
+
 
     //function controls action box and displays the messages in it
     function actionUsed(resourceId){
