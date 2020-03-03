@@ -139,34 +139,33 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
             })
         }
 
-        function raceCtrl() {
+    });
+
+    function raceCtrl() {
         
-            var vm = angular.extend(this, {});
+        var vm = angular.extend(this, {});
+        
+        function weaponBox() {
+    
+            //var myArray = [
+            //"Smart Bomb",
+            //"Oil Slick",
+            //"Puncture"
+            //];
+        
+            var randomWeapon = casual.resources[Math.floor(Math.random()*casual.resources.length)]; 
+
             
-            function weaponBox() {
-        
-                var myArray = [
-                "Oil Slick",
-                "Smart Bomb",
-                "Puncture"
-                ];
-            
-                var randomWeapon = myArray[Math.floor(Math.random()*myArray.length)]; 
-                
-                document.getElementById('weapon').innerHTML = randomWeapon;
-            
-            }
-        
-            setInterval(weaponBox, 3000)
-        
-        
-            return vm;
+            document.getElementById('weapon').innerHTML = randomWeapon;
         
         }
-        raceCtrl();
-
-    });
     
+        setInterval(weaponBox, 3000)
+    
+        return vm;
+    
+    }
+    raceCtrl();
 
     //watches for throttle change
     $scope.$watch("casual.throttle", function (newThrottle, oldThrottle) {
