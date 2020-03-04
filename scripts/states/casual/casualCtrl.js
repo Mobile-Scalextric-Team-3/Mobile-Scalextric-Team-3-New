@@ -16,6 +16,22 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
     var channel = $stateParams.channel;//sets channel to one sent from previous state
 
+    var sensorChannel = 0;
+
+    var lap = 0;
+
+    var mili = 0;
+    var secs = 0;
+    var mins = 0;
+
+    //sets sensor channel
+    if(channel == 0){
+        sensorChannel = 2;
+    }
+    else if(channel == 1){
+        sensorChannel == 3;
+    }
+
     //getName function retrieves nickname from session data
     function getName() {
         document.getElementById('unique').innerHTML = 
@@ -24,6 +40,21 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
     
     vm.getName = getName;
     getName();
+
+    //setChannel function sets name of channel and displays it in app
+    function setChannel(){
+        var channelName;
+        var div = angular.element(document.querySelector('#channel'));
+        if(channel == 0){
+            channelName = "Red"
+        }
+        else if(channel == 1){
+            channelName = "Yellow"
+        }
+        div.html('Car: ' + channelName);
+    }
+    vm.setChannel = setChannel;
+    setChannel();
 
 
     //function controls action box and displays the messages in it
@@ -77,8 +108,12 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
     var getResourcesTopic = `${brokerDetails.UUID}/resources`;
     var resourceStateTopic = `${brokerDetails.UUID}/control/{channel}/{resourceId}/state`;
 
+    var lapSensorTopic = `${brokerDetails.UUID}/sensors/${sensorChannel}`;
+
     mqttService.subscribe(throttleTopic);
     mqttService.subscribe(getResourcesTopic);
+
+    mqttService.subscribe(lapSensorTopic);
 
     //when the 'X' button is pressed
     function stop() {
@@ -130,6 +165,9 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
             });
             $scope.$apply();
         }
+        else if(message.topic === lapSensorTopic){
+            lapCount();
+        }
 
         if (vm.resources !== undefined) {
             vm.resources.forEach(resource => {
@@ -159,6 +197,52 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
             document.getElementById('weapon').innerHTML = randomWeapon;
         
         }
+
+    function lapCount(){
+        var div = angular.element(document.querySelector('#laps-completed'));
+        lap++;
+        div.html('Lap: ' + lap);
+    }
+    vm.lapCount = lapCount;
+
+    function stopclock(){
+        var div = angular.element(document.querySelector('#current-lap'));
+        var mili0;
+        var secs0;
+        var mins0;
+        mili++;
+        if(mili >= 99){
+            secs++;
+            mili=0;
+        }
+        if(secs >= 59){
+            mins++;
+            secs=0;
+        }
+
+        if(mili < 10){
+            mili0 = "0" + mili;
+        }
+        else{
+            mili0 = mili;
+        }
+
+        if(secs < 10){
+            secs0 = "0" + secs;
+        }
+        else{
+            secs0 = secs
+        }
+
+        if(mins < 10){
+            mins0 = "0" + mins;
+        }
+        else{
+            mins0 = mins;
+        }
+        div.html('Current Lap: '+ mins0 + ":"+ secs0 + ":" + mili0);
+    }
+    setInterval(stopclock, 10);
     
         setInterval(weaponBox, 3000)
     
