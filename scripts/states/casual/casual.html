@@ -13,7 +13,6 @@
         <b>Weapon Box</b><br>
         <div ng-repeat="resource in casual.resources track by $index">
             <button ng-model="casual.resources[$index]" ng-click="casual.fireSpecialWeapon(resource.id)">{{resource.name}}</button>
-        <div>
     </div>    
 </div>
 <button id="weapon" ng-click="casual.fireSpecialWeapon(resource.id)">{{resource.name}}</button>

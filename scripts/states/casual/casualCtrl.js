@@ -147,13 +147,13 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
         
         function weaponBox() {
     
-            //var myArray = [
-            //"Smart Bomb",
-            //"Oil Slick",
-            //"Puncture"
-            //];
+            var myArray = [
+            "Smart Bomb",
+            "Oil Slick",
+            "Puncture"
+            ];
         
-            var randomWeapon = casual.resources[Math.floor(Math.random()*casual.resources.length)]; 
+            var randomWeapon = myArray[Math.floor(Math.random()*myArray.length)]; 
 
             
             document.getElementById('weapon').innerHTML = randomWeapon;
