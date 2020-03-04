@@ -1,6 +1,7 @@
-<!--Exit Button-->
+<!--Challenge and Exit Buttons-->
+
 <input type="button" id="exit" value="x" ng-click="casual.stop()"></input><br>
-<h1>Mobile Scalextric</h1>
+<h1>Casual Mode</h1>
 <!--Car information kept in info such as weapon box and action box-->
 <div id="info">
     <!--unique stores nickname entered on onboarding and displays it-->
@@ -10,8 +11,8 @@
         <div id="action">No weapon has been used yet</div>
     </div>
     <div id="laps-completed">Lap: 0</div>
-    <div id="current-lap">Current Lap:</div>
-    <div id="fastest-lap">Fastest Lap:</div>
+    <div id="current-lap">Current Lap: 00:00:00</div>
+    <div id="fastest-lap">Fastest Lap: 00:00:00</div>
     <div id="weapon-box">
         <b>Weapon Box</b><br>
         <div ng-repeat="resource in casual.resources track by $index">

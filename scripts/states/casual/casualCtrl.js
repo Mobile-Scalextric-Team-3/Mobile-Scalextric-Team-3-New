@@ -18,11 +18,8 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
     var sensorChannel = 0;
 
-    var lap = 0;
-
-    var mili = 0;
-    var secs = 0;
-    var mins = 0;
+    var lap = 1;//current lap
+    var time = 0, bestTime = 0;//used by the stopclock to check times
 
     //sets sensor channel
     if(channel == 0){
@@ -117,11 +114,12 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
     //when the 'X' button is pressed
     function stop() {
+        resetClock();
         var payload = {
             set : 0
         }
         mqttService.publish(throttleTopic, JSON.stringify(payload));
-        
+
         mqttService.disconnect();
         $state.transitionTo('onboarding', {});
     }
@@ -206,51 +204,70 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
     });
 
+    //function called in onMessageArrive() when lap sensor triggers
     function lapCount(){
         var div = angular.element(document.querySelector('#laps-completed'));
-        lap++;
+        var div2 = angular.element(document.querySelector('#fastest-lap'));
+        lap++;//increments lap by 1
+
+        /*checks lap times to see if a new record has been set or if 
+        this is the first lap so set current time as best*/
+        if(bestTime == 0){
+            bestTime = time;
+            div2.html('Fastest Lap: ' + timeFormat(bestTime));
+        }
+        else if(bestTime != 0 && bestTime > time){
+            bestTime = time;
+            div2.html('Fastest Lap: ' + timeFormat(bestTime));
+        }
+        else{
+            div2.html('Fastest Lap: ' + timeFormat(bestTime));
+        }
+        resetClock();
         div.html('Lap: ' + lap);
+        
     }
     vm.lapCount = lapCount;
 
+    //called every 10 miliseconds by SetInterval() below and increases time by 1 while displaying it
     function stopclock(){
-        var div = angular.element(document.querySelector('#current-lap'));
-        var mili0;
-        var secs0;
-        var mins0;
-        mili++;
-        if(mili >= 99){
-            secs++;
-            mili=0;
-        }
-        if(secs >= 59){
-            mins++;
-            secs=0;
-        }
-
-        if(mili < 10){
-            mili0 = "0" + mili;
-        }
-        else{
-            mili0 = mili;
-        }
-
-        if(secs < 10){
-            secs0 = "0" + secs;
-        }
-        else{
-            secs0 = secs
-        }
-
-        if(mins < 10){
-            mins0 = "0" + mins;
-        }
-        else{
-            mins0 = mins;
-        }
-        div.html('Current Lap: '+ mins0 + ":"+ secs0 + ":" + mili0);
+        var div = angular.element(document.querySelector('#current-lap'));     
+        time++;
+        div.html('Current Lap: ' + timeFormat(time));
     }
     setInterval(stopclock, 10);
+
+    //resets the time varible used by the stopclock to 0;
+    function resetClock(){
+        time = 0;
+    }
+    vm.resetClock = resetClock;
+
+    function timeFormat(number){
+        var miliseconds = 0, seconds = 0, minutes = 0;
+
+        while(number>0){
+            if(number>=6000){
+                number-=6000;
+                minutes++;
+            }
+            else if(number>=100){
+                number-=100;
+                seconds++;
+            }
+            else{
+                miliseconds = number;
+                number -= miliseconds;
+            }
+        }
+
+        minutes = (minutes <= 9) ? ("0" + minutes) : minutes;
+        seconds = (seconds <= 9) ? ("0" + seconds) : seconds;
+        miliseconds = (miliseconds <= 9) ? ("0" + miliseconds) : miliseconds;
+
+        return "" + minutes + ":" + seconds + ":" + miliseconds;
+    }
+    vm.timeFormat = timeFormat;
     
 
     //watches for throttle change
