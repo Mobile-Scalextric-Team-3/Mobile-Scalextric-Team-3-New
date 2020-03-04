@@ -195,8 +195,39 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
             
             document.getElementById('weapon').innerHTML = randomWeapon;
+
+            function weaponSelect(resourceId) {
+
+                if(randomWeapon = "Smart Bomb") {
+                    resourceId == 1
+                }
+                else if (randomWeapon = "Oil Slick") {
+                    resourceId == 2
+                }
+                else if (randomWeapon = "Puncture") {
+                    resourceId == 3
+                }
+    }
+
+    weaponSelect();
         
         }
+
+
+    //function weaponSelect() {
+
+                //if(randomWeapon = "Smart Bomb") {
+                    //resource.id == 0
+                //}
+                //else if (randomWeapon = "Oil Slick") {
+                    //resource.id == 1
+                //}
+                //else if (randomWeapon = "Puncture") {
+                    //resource.id == 2
+                //}
+    //}
+    //weaponSelect();
+
 
     function lapCount(){
         var div = angular.element(document.querySelector('#laps-completed'));

@@ -16,6 +16,10 @@
         <b>Weapon Box</b><br>
         <div ng-repeat="resource in casual.resources track by $index">
             <button ng-model="casual.resources[$index]" ng-click="casual.fireSpecialWeapon(resource.id)">{{resource.name}}</button>
+        </div>
+        <div>
+            <button id="weapon" value="resourceId" ng-click="casual.fireSpecialWeapon(resource.id)"></button>
+        </div>
     </div>    
 </div>
 <!--Car controls are the throttle and throtte slider as well as showing if there has been an error-->
