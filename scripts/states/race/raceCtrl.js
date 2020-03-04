@@ -1,6 +1,6 @@
-angular.module('app').controller('casualCtrl', casualCtrl);
+angular.module('app').controller('raceCtrl', raceCtrl);
 
-casualCtrl.$inject = [
+raceCtrl.$inject = [
     '$scope',
     '$state',
     '$stateParams',
@@ -8,8 +8,8 @@ casualCtrl.$inject = [
     'brokerDetails'
 ];
 
-function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
-    
+function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
+
     var vm = this;
 
     var channel = $stateParams.channel;//sets channel to one sent from previous state
@@ -50,6 +50,21 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
     }
     vm.setChannel = setChannel;
     setChannel();
+
+    //sets up the race
+    function setupRace(){
+        lap = 0;
+        var div = angular.element(document.querySelector('#action'));
+        div.html('Please Drive to the starting line');
+    }
+    setupRace();
+
+    //starts the race
+    function start(){
+        lap = 1;
+        resetClock();
+    }
+
 
     //function controls action box and displays the messages in it
     function actionUsed(resourceId){
@@ -157,7 +172,7 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
             div2.html('Fastest Lap: ' + timeFormat(bestTime));
         }
         resetClock();
-        div.html('Laps completed: ' + lap);
+        div.html('Lap: ' + lap + '/15');
         
     }
     vm.lapCount = lapCount;
@@ -167,12 +182,14 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
         var div = angular.element(document.querySelector('#current-lap'));     
         time++;
         div.html('Current Lap: ' + timeFormat(time));
+        console.log(timeFormat(time));
     }
     setInterval(stopclock, 10);
 
     //resets the time varible used by the stopclock to 0;
     function resetClock(){
         time = 0;
+        console.log('Clock Reset');
     }
     vm.resetClock = resetClock;
 
@@ -198,14 +215,15 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
         minutes = (minutes <= 9) ? ("0" + minutes) : minutes;
         seconds = (seconds <= 9) ? ("0" + seconds) : seconds;
-        miliseconds = (miliseconds <= 9) ? ("0" + miliseconds) : miliseconds;
+        miliseconds = (miliseconds <= 9) ? ("0" + miliseconds) : miliseconds;        
 
         return "" + minutes + ":" + seconds + ":" + miliseconds;
     }
     vm.timeFormat = timeFormat;
 
     function challenge(){
-        $state.transitionTo('race',{
+        $state.transitionTo('race',
+        {
             channel: channel,
         });
     }
@@ -233,7 +251,13 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
             $scope.$apply();
         }
         else if(message.topic === lapSensorTopic){
-            lapCount();
+            if(lap == 0){
+                start();
+            }
+            else{
+                lapCount();
+            }        
+
         }
 
         if (vm.resources !== undefined) {
@@ -246,7 +270,7 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
     });   
 
     //watches for throttle change
-    $scope.$watch("casual.throttle", function (newThrottle, oldThrottle) {
+    $scope.$watch("race.throttle", function (newThrottle, oldThrottle) {
         if (newThrottle != oldThrottle) {
             var payload = {
                 "set": newThrottle
