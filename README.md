@@ -9,3 +9,6 @@ https://mobile-scalextric-team-3.github.io/Mobile-Scalextric-Team-3-New/index.ht
 
 Hyperlink for local host:<br>
 http://localhost:8000/index.html#!/onboarding?brokerPort=8081&brokerHost=test.mosquitto.org&uuid=testUUID&ssl=true
+
+Backup:<br>
+http://localhost:8000/index.html#!/onboarding?brokerPort=80&brokerHost=thedigitallabsmqtt.herokuapp.com&uuid=testUUID&ssl=false
