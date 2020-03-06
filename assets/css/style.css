@@ -1,51 +1,98 @@
 body{
-    font-family: "Verdana";
-    background-color: #4d75b3;/*blue*/
-    color: white;
-    text-align: center;
+  font-family: "Verdana";
+  background-color: #000000;/*blue*/
+  border-radius: 2vh;
+  color: white;
+  text-align: center;
+}
+header{
+border-radius: 2vh;
+background-color: #4c5e61;
+text-align: center;
+padding:18px;
+border: solid white;
+
 }
 
 .wrapper{
-    background-color: #f44336;/*red*/
-    border: solid white;
-    height: 97vh;
+  border-radius: 2vh;
+  background-color: #748c91;/*red*/
+  border: solid rgb(255, 255, 255);
+  height: 97vh;
 }
 
 .throttle{
-    writing-mode: bt-lr; /* IE */
-    -webkit-appearance: slider-vertical; /* WebKit */
-    width: 8px;
-    height: 50vh;
-    padding: 0 5px;
+  -webkit-appearance: none;
+  
+  transform:rotate(270deg); /* WebKit */
+  height:50px;
+  width: 350px;
+  outline:none;
+  opacity:0.7;
+  top:10px;
+
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+.throttle:hover {
+opacity: 1;
+
 }
 
+.throttle::-webkit-slider-thumb {
+-webkit-appearance: none;
+appearance: none;
+width: 35px;
+height: 35px;
+border-radius: 5px;
+background: #d3d3d3;
+outline: none;
+background: url('pedal.png');
+cursor: pointer;
+}
+
+.throttle::-moz-range-thumb {
+  width: 35px;
+  height: 35px;
+  border-radius: 5px;
+  background: #d3d3d3;
+  outline: none;
+  border: 0;
+  background: url('pedal.png');
+  cursor: pointer;
+}
+
+
+
+
 #info{
-  float: left;
-  width: 50%;
+float: left;
+width: 50%;
 }
 
 #action-box{
-  padding-top: 2vh;
-  padding-bottom: 2vh;
-  margin-left:2vh;
-  margin-right:2vh;
-  background-color: #4d75b3;/*blue*/;
+border-radius: 2vh;
+padding-top: 2vh;
+padding-bottom: 2vh;
+margin-left:2vh;
+margin-right:2vh;
+background-color: #4c5e61;/*blue*/;
+border: solid white;
 }
 
 #weapon-box{
-  margin-top: 10vh;
-  margin-left:2vh;
-  margin-right:2vh;
-  padding-top: 2vh;
-  padding-bottom: 2vh;
-  background-color: #4d75b3;/*blue*/;
+border-radius: 2vh;
+margin-top: 10vh;
+margin-left:2vh;
+margin-right:2vh;
+padding-top: 2vh;
+padding-bottom: 2vh;
+background-color: #4c5e61;/*blue*/;
+border: solid white;
 }
 
-#car-contols{
-  margin-left: 50%;
-}
 
 #exit{
-  position: absolute;
-  right: 5%;
+position: absolute;
+right: 5%;
 }
