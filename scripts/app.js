@@ -74,10 +74,36 @@ function config($stateProvider, $urlRouterProvider) {
                 return deferred.promise;
             }]
         }
+    }
+
+    var raceState = {
+        name: 'race',
+        url: '/race',
+        templateUrl: 'scripts/states/race/race.html',
+        controller: 'raceCtrl',
+        controllerAs: 'race',
+        params: {
+            channel: null,
+            ip_address: null
+        },
+        resolve: {
+            parameters: ['$q', '$state','$stateParams', function ($q, $state,$stateParams) {
+                var deferred = $q.defer();
+               
+                if ($stateParams.channel === null) {
+                    $state.transitionTo('onboarding', {});
+                }else{
+                    deferred.resolve();
+                }
+
+                return deferred.promise;
+            }]
+        }
     };
 
     $stateProvider.state(onboardingState);
     $stateProvider.state(casualState);
+    $stateProvider.state(raceState);
 
     $urlRouterProvider.otherwise('/onboarding');
 }
