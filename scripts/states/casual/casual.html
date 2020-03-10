@@ -1,7 +1,9 @@
 <!--Challenge and Exit Buttons-->
 <input type="button" id="challenge" value="Race Mode" ng-click="casual.sendChallenge()"></input>
 <input type="button" id="exit" value="x" ng-click="casual.stop()"></input><br>
-<h1>Casual Mode</h1>
+<header>
+    <h1>Casual Mode</h1>
+</header>
 <!--Car information kept in info such as weapon box and action box-->
 <div id="info">
     <!--unique stores nickname entered on onboarding and displays it-->
@@ -28,6 +30,6 @@
 <div id="car-controls">
     <div id="channel"></div><br>
     <span ng-bind="casual.throttle" ng-show="!casual.throttleError"></span>
-    <span ng-show="casual.throttleError">Error</span>    
+    <span ng-show="casual.throttleError">Error</span><br>
     <input type="range" min="0" max="100" value="0" orient="vertical" class="throttle" ng-model="casual.throttle">    
 </div>

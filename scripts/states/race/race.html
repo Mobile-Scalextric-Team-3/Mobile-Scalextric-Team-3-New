@@ -1,6 +1,8 @@
 <!--Exit Buttons-->
 <input type="button" id="exit" value="x" ng-click="race.stop()"></input><br>
-<h1>Race Mode</h1>
+<header>
+    <h1>Race Mode</h1>
+</header>
 <!--Car information kept in info such as weapon box and action box-->
 <div id="info">
     <!--unique stores nickname entered on onboarding and displays it-->
@@ -23,7 +25,7 @@
 <div id="car-controls">
     <div id="channel"></div><br>
     <span ng-bind="race.throttle" ng-show="!race.throttleError"></span>
-    <span ng-show="race.throttleError">Error</span>    
+    <span ng-show="race.throttleError">Error</span><br>   
     <input type="range" min="0" max="100" value="0" orient="vertical" class="throttle" ng-model="race.throttle">    
 </div>
 <div id="race-controls">

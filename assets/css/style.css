@@ -1,107 +1,66 @@
-body{
-  font-family: "Verdana";
+body{  
   background-color: #000000;/*blue*/
-  border-radius: 2vh;
+  font-family: "Verdana";
   color: white;
   text-align: center;
 }
-header{
-border-radius: 2vh;
-background-color: #4c5e61;
-text-align: center;
-padding:18px;
-border: solid white;
 
+header{  
+  background-color: #4c5e61;
+  border: solid white;
+  border-radius: 5vh; 
+  padding:2vh;
+  margin-bottom: 5vh;
+  margin-top: 5%;
 }
 
-.wrapper{
-  border-radius: 2vh;
+.wrapper{  
   background-color: #748c91;/*red*/
   border: solid rgb(255, 255, 255);
-  height: 97vh;
+  border-radius: 5vh;
+  height: 97vh;/* margin default 3vh(viewpoint height) so 100-3=97 to fit screen*/
 }
 
 .throttle{
-  -webkit-appearance: none;
-  
-  transform:rotate(270deg); /* WebKit */
-  height:50px;
-  width: 350px;
-  outline:none;
-  opacity:0.7;
-  top:10px;
-
-  -webkit-transition: .2s;
-  transition: opacity .2s;
+  -webkit-appearance: slider-vertical;
+  width: 5vh;
+  height: 50vh;
+  padding: 0 5vh;
 }
-.throttle:hover {
-opacity: 1;
-
-}
-
-.throttle::-webkit-slider-thumb {
--webkit-appearance: none;
-appearance: none;
-width: 35px;
-height: 35px;
-border-radius: 5px;
-background: #d3d3d3;
-outline: none;
-background: url('pedal.png');
-cursor: pointer;
-}
-
-.throttle::-moz-range-thumb {
-  width: 35px;
-  height: 35px;
-  border-radius: 5px;
-  background: #d3d3d3;
-  outline: none;
-  border: 0;
-  background: url('pedal.png');
-  cursor: pointer;
-}
-
-
-
 
 #info{
-float: left;
-width: 50%;
+  float: left;
+  width: 50%;
 }
 
 #action-box{
-border-radius: 2vh;
-padding-top: 2vh;
-padding-bottom: 2vh;
-margin-left:2vh;
-margin-right:2vh;
-background-color: #4c5e61;/*blue*/;
-border: solid white;
+  background-color: #4c5e61;/*blue*/;   
+  border-radius: 2vh;
+  border: solid white;
+  margin: 2vh;
+  padding-top: 2vh;
+  padding-bottom: 2vh;  
 }
 
 #weapon-box{
-border-radius: 2vh;
-margin-top: 10vh;
-margin-left:2vh;
-margin-right:2vh;
-padding-top: 2vh;
-padding-bottom: 2vh;
-background-color: #4c5e61;/*blue*/;
-border: solid white;
+  background-color: #4c5e61;/*blue*/;
+  border-radius: 2vh;
+  border: solid white;
+  margin: 2vh;
+  margin-top: 5vh;
+  padding-top: 2vh;
+  padding-bottom: 2vh;  
 }
 
 
 #exit{
-position: absolute;
-right: 5%;
   position: absolute;
-  right: 4%;
-  top: 2%;
+  right: 6%;
+  top: 3%;
 }
 
 #challenge{
   position: absolute;
-  left: 4%;
-  top: 2%;
+  left: 6%;
+  top: 3%;
 }
