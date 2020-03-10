@@ -19,6 +19,8 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
     var lap = 0;//current lap
     var timeRace = 0, bestTime = 0;//used by the stopclock to check times
 
+    var carReady = false;
+
     //sets sensor channel
     if(channel == 0){
         sensorChannel = 2;
@@ -50,26 +52,6 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
     }
     vm.setChannel = setChannel;
     setChannel();
-
-    //sets up the race
-    function setupRace(){
-        lap = 0;
-        var div = angular.element(document.querySelector('#action'));
-        div.html('Please Drive to the starting line');
-    }
-    setupRace();
-
-    //starts the race
-    function start(){
-        lap = 1;
-        setInterval(stopclock, 10);
-        resetClock();
-    }
-
-    function finish(){
-        //finish the race and goes to finish state to display who won and different stats
-    }
-
 
     //function controls action box and displays the messages in it
     function actionUsed(resourceId){
@@ -119,6 +101,10 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
     vm.stop = stop;
     vm.fireSpecialWeapon = fireSpecialWeapon;
 
+    /*---------
+    MQTT Topics
+    ----------*/
+
     //sets topic details and the subscribes to them
     var throttleTopic = `${brokerDetails.UUID}/control/${channel}/throttle`;
     var getResourcesTopic = `${brokerDetails.UUID}/resources`;
@@ -154,6 +140,40 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
             "target": vm.targetChannel
         };
         mqttService.publish(resourceStateTopic.replace(/\{resourceId\}/, resourceId).replace(/\{channel\}/, channel), JSON.stringify(payload));
+    }
+
+    /*------------
+    Race functions
+    ------------*/
+
+    //sets up the race
+    function setupRace(){
+        lap = 0;
+        var div = angular.element(document.querySelector('#action'));
+        div.html('Please Drive to the starting line');
+        var payload = {
+            "set": 30
+        }
+        mqttService.publish(throttleTopic, JSON.stringify(payload));
+        while(!carReady){
+            div.html('Please Wait...');
+        }
+        var payload = {
+            "set": 0
+        }
+        mqttService.publish(throttleTopic, JSON.stringify(payload));
+    }
+    setupRace();
+
+    //starts the race
+    function start(){
+        lap = 1;
+        setInterval(stopclock, 10);
+        resetClock();
+    }
+
+    function finish(){
+        //finish the race and goes to finish state to display who won and different stats
     }
 
     /*-----------------------
@@ -252,12 +272,23 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
         }
         else if(message.topic === lapSensorTopic){
             if(lap == 0){
-                start();
+                var payload = {
+                    "ready": channel
+                }
+                mqttService.publish(gameStateTopic, JSON.stringify(payload));
             }
             else{
                 lapCount();
             }        
 
+        }
+        else if(message.topic === gameStateTopic){
+            var gameState = JSON.parse(message.payloadString);
+            if(gameState.hasOwnProperty("ready")){
+                if(gameState.ready == channel){
+                    carReady = true;
+                }
+            }
         }
 
         if (vm.resources !== undefined) {
