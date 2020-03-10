@@ -17,7 +17,7 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
     var sensorChannel = 0;
 
     var lap = 0;//current lap
-    var time = 0, bestTime = 0;//used by the stopclock to check times
+    var timeRace = 0, bestTime = 0;//used by the stopclock to check times
 
     //sets sensor channel
     if(channel == 0){
@@ -62,7 +62,12 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
     //starts the race
     function start(){
         lap = 1;
+        setInterval(stopclock, 10);
         resetClock();
+    }
+
+    function finish(){
+        
     }
 
 
@@ -120,12 +125,13 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
     var resourceStateTopic = `${brokerDetails.UUID}/control/{channel}/{resourceId}/state`;
 
     var lapSensorTopic = `${brokerDetails.UUID}/sensors/${sensorChannel}`;
+    var gameStateTopic = `${brokerDetails.UUID}/control/game_state`;
 
     mqttService.subscribe(throttleTopic);
     mqttService.subscribe(getResourcesTopic);
 
     mqttService.subscribe(lapSensorTopic);
-
+    mqttService.subscribe(gameStateTopic);
 
 
     //when the 'X' button is pressed
@@ -161,11 +167,11 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
         /*checks lap times to see if a new record has been set or if 
         this is the first lap so set current time as best*/
         if(bestTime == 0){
-            bestTime = time;
+            bestTime = timeRace;
             div2.html('Fastest Lap: ' + timeFormat(bestTime));
         }
-        else if(bestTime != 0 && bestTime > time){
-            bestTime = time;
+        else if(bestTime != 0 && bestTime > timeRace){
+            bestTime = timeRace;
             div2.html('Fastest Lap: ' + timeFormat(bestTime));
         }
         else{
@@ -179,16 +185,14 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
 
     //called every 10 miliseconds by SetInterval() below and increases time by 1 while displaying it
     function stopclock(){
-        var div = angular.element(document.querySelector('#current-lap'));     
-        time++;
-        div.html('Current Lap: ' + timeFormat(time));
-        console.log(timeFormat(time));
-    }
-    setInterval(stopclock, 10);
+        var div = angular.element(document.querySelector('#current-lap1'));     
+        timeRace++;
+        div.html('Current Lap: ' + timeFormat(timeRace));
+    }    
 
     //resets the time varible used by the stopclock to 0;
     function resetClock(){
-        time = 0;
+        timeRace = 0;
         console.log('Clock Reset');
     }
     vm.resetClock = resetClock;
@@ -220,14 +224,6 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
         return "" + minutes + ":" + seconds + ":" + miliseconds;
     }
     vm.timeFormat = timeFormat;
-
-    function challenge(){
-        $state.transitionTo('race',
-        {
-            channel: channel,
-        });
-    }
-    vm.challenge = challenge;
 
 
     

@@ -16,6 +16,8 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
     var sensorChannel = 0;
 
+    vm.showButtons = false;
+
     var lap = 0;//current lap
     var time = 0, bestTime = 0;//used by the stopclock to check times
 
@@ -104,12 +106,14 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
     var getResourcesTopic = `${brokerDetails.UUID}/resources`;
     var resourceStateTopic = `${brokerDetails.UUID}/control/{channel}/{resourceId}/state`;
 
+    var gameStateTopic = `${brokerDetails.UUID}/control/game_state`;
     var lapSensorTopic = `${brokerDetails.UUID}/sensors/${sensorChannel}`;
 
     mqttService.subscribe(throttleTopic);
     mqttService.subscribe(getResourcesTopic);
 
     mqttService.subscribe(lapSensorTopic);
+    mqttService.subscribe(gameStateTopic);
 
 
 
@@ -204,14 +208,62 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
     }
     vm.timeFormat = timeFormat;
 
-    function challenge(){
+    /*-----------------
+    Challenge functions
+    -------------------*/
+
+    //sends challenge request when button pressed
+    function sendChallenge(){
+        var div = angular.element(document.querySelector('#action'));
+        div.html('Challenge request sent');
+
+        var payload = {
+            "request": channel
+        }
+        mqttService.publish(gameStateTopic, JSON.stringify(payload));
+    }
+    vm.sendChallenge = sendChallenge;
+
+    //display challenge request
+    function receiveChallenge(){
+        var div = angular.element(document.querySelector('#action'));
+        div.html('Challenge recieved');
+        vm.showButtons = true;
+        $scope.$apply();//angular refreshes on certain events but must be forced to here by using $scope.$apply()
+    }
+    vm.receiveChallenge = receiveChallenge;
+
+    //sends accepted race to mqtt
+    function acceptRace(){
+        var payload = {
+            "accepted": true
+        }
+        mqttService.publish(gameStateTopic, JSON.stringify(payload));
+        var div = angular.element(document.querySelector('#action'));
+        div.html('Race accepted');
+        vm.showButtons = false;
+    }
+    vm.acceptRace = acceptRace;
+
+    //carries on in casual and displays message saying rejected
+    function rejectRace(){        
+        var div = angular.element(document.querySelector('#action'));
+        div.html('No weapon has been used yet');
+        vm.showButtons = false;
+    }
+    vm.rejectRace = rejectRace;
+
+    //both accepted
+    function bothAccept(){
         $state.transitionTo('race',{
             channel: channel,
         });
     }
-    vm.challenge = challenge;
 
 
+    /*-----------
+    MQTT messages
+    -----------*/
     
     //sends mqtt messages to the console
     mqttService.onMessageArrived(function (message) {
@@ -234,6 +286,19 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
         }
         else if(message.topic === lapSensorTopic){
             lapCount();
+        }
+        else if(message.topic === gameStateTopic){
+            var gameState = JSON.parse(message.payloadString);
+            if(gameState.hasOwnProperty("request")){
+                if(channel != gameState.request){
+                    receiveChallenge();
+                }                
+            }
+            else if(gameState.hasOwnProperty("accepted")){
+                if(gameState.accepted){
+                    bothAccept();
+                }
+            }
         }
 
         if (vm.resources !== undefined) {

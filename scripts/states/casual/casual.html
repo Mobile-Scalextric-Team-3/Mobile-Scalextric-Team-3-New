@@ -1,5 +1,5 @@
 <!--Challenge and Exit Buttons-->
-<input type="button" id="challenge" value="Race Mode" ng-click="casual.challenge()"></input>
+<input type="button" id="challenge" value="Race Mode" ng-click="casual.sendChallenge()"></input>
 <input type="button" id="exit" value="x" ng-click="casual.stop()"></input><br>
 <h1>Casual Mode</h1>
 <!--Car information kept in info such as weapon box and action box-->
@@ -9,6 +9,10 @@
     <div id="action-box">
         <b>Action Box</b>
         <div id="action">No weapon has been used yet</div>
+        <div ng-show="casual.showButtons">
+            <input type="button" id="accept" value="Accept" ng-click="casual.acceptRace()"></input>
+            <input type="button" id="reject" value="Reject" ng-click="casual.rejectRace()"></input>
+        </div>
     </div>
     <div id="laps-completed">Laps completed: 0</div>
     <div id="current-lap">Current Lap: 00:00:00</div>
