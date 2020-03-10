@@ -19,7 +19,7 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
     var lap = 0;//current lap
     var timeRace = 0, bestTime = 0;//used by the stopclock to check times
 
-    var carReady = false;
+    var car0Ready = false, car1Ready = false;
 
     //sets sensor channel
     if(channel == 0){
@@ -150,20 +150,21 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
     function setupRace(){
         lap = 0;
         var div = angular.element(document.querySelector('#action'));
-        div.html('Please Drive to the starting line');
+        div.html('Driving to the starting line, please wait...');
         var payload = {
             "set": 30
         }
-        mqttService.publish(throttleTopic, JSON.stringify(payload));
-        while(!carReady){
-            div.html('Please Wait...');
-        }
+        mqttService.publish(throttleTopic, JSON.stringify(payload));        
+    }
+    setupRace();
+
+    //when cars are ready countdown begins
+    function ready(){
         var payload = {
             "set": 0
         }
         mqttService.publish(throttleTopic, JSON.stringify(payload));
     }
-    setupRace();
 
     //starts the race
     function start(){
@@ -286,7 +287,14 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
             var gameState = JSON.parse(message.payloadString);
             if(gameState.hasOwnProperty("ready")){
                 if(gameState.ready == channel){
-                    carReady = true;
+                    ready();
+                }
+                
+                if(gameState.ready == 0){
+                    car0Ready = true;
+                }
+                else if(gameState.ready == 1){
+                    car1Ready = true;
                 }
             }
         }
@@ -298,7 +306,7 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
                 }
             })
         }
-    });   
+    });
 
     //watches for throttle change
     $scope.$watch("race.throttle", function (newThrottle, oldThrottle) {
