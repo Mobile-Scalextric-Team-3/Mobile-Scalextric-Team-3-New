@@ -184,7 +184,9 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
         var vm = angular.extend(this, {});
         
         function weaponBox() {
-    
+
+            actionUsed(resourceId);
+
             var myArray = [
             "Smart Bomb",
             "Oil Slick",
@@ -194,40 +196,22 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
             var randomWeapon = myArray[Math.floor(Math.random()*myArray.length)]; 
 
             
-            document.getElementById('weapon').innerHTML = randomWeapon;
+            vm.randomWeapon = randomWeapon
 
-            function weaponSelect(resourceId) {
+            var resourceId;
 
-                if(randomWeapon = "Smart Bomb") {
-                    resourceId == 1
-                }
-                else if (randomWeapon = "Oil Slick") {
-                    resourceId == 2
-                }
-                else if (randomWeapon = "Puncture") {
-                    resourceId == 3
-                }
-    }
-
-    weaponSelect();
-        
+            if(randomWeapon == "Smart Bomb") {
+                resourceId = 1
+            }
+            else if (randomWeapon == "Oil Slick") {
+                resourceId = 2
+            }
+            else if (randomWeapon == "Puncture") {
+                resourceId = 3
+            }
+            var div = angular.element(document.querySelector('#weapon-select'));
+            div.html('weapon: ' + resourceId);
         }
-
-
-    //function weaponSelect() {
-
-                //if(randomWeapon = "Smart Bomb") {
-                    //resource.id == 0
-                //}
-                //else if (randomWeapon = "Oil Slick") {
-                    //resource.id == 1
-                //}
-                //else if (randomWeapon = "Puncture") {
-                    //resource.id == 2
-                //}
-    //}
-    //weaponSelect();
-
 
     function lapCount(){
         var div = angular.element(document.querySelector('#laps-completed'));
@@ -274,10 +258,10 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
         div.html('Current Lap: '+ mins0 + ":"+ secs0 + ":" + mili0);
     }
     setInterval(stopclock, 10);
+
+    setInterval(weaponBox, 3000)
     
-        setInterval(weaponBox, 3000)
-    
-        return vm;
+    return vm;
     
     }
     raceCtrl();
