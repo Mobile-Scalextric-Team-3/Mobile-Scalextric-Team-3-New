@@ -67,7 +67,7 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
     }
 
     function finish(){
-        
+        //finish the race and goes to finish state to display who won and different stats
     }
 
 
@@ -156,7 +156,9 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
         mqttService.publish(resourceStateTopic.replace(/\{resourceId\}/, resourceId).replace(/\{channel\}/, channel), JSON.stringify(payload));
     }
 
-
+    /*-----------------------
+    Stopwatch and lap counter
+    ------------------------*/
 
     //function called in onMessageArrive() when lap sensor triggers
     function lapCount(){
@@ -225,7 +227,9 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
     }
     vm.timeFormat = timeFormat;
 
-
+    /*-----------
+    MQTT services
+    ------------*/
     
     //sends mqtt messages to the console
     mqttService.onMessageArrived(function (message) {
