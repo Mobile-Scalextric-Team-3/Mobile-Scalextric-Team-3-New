@@ -289,12 +289,19 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
                 if(gameState.ready == channel){
                     ready();
                 }
-                
+
                 if(gameState.ready == 0){
                     car0Ready = true;
                 }
                 else if(gameState.ready == 1){
                     car1Ready = true;
+                }
+
+                if(car0Ready && car1Ready){
+                    var payload = {
+                        "begin": true
+                    }
+                    mqttService.publish(gameStateTopic, JSON.stringify(payload));
                 }
             }
         }
