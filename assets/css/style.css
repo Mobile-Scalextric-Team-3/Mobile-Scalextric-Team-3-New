@@ -1,5 +1,5 @@
 body{  
-  background-color: #000000;/*blue*/
+  background-color: #000000;
   font-family: "Verdana";
   color: white;
   text-align: center;
@@ -8,14 +8,14 @@ body{
 header{  
   background-color: #4c5e61;
   border: solid white;
-  border-radius: 5vh; 
+  border-radius: 5vh;
   padding:2vh;
   margin-bottom: 5vh;
   margin-top: 5%;
 }
 
 .wrapper{  
-  background-color: #748c91;/*red*/
+  background-color: #748c91;
   border: solid rgb(255, 255, 255);
   border-radius: 5vh;
   height: 97vh;/* margin default 3vh(viewpoint height) so 100-3=97 to fit screen*/
@@ -34,7 +34,7 @@ header{
 }
 
 #action-box{
-  background-color: #4c5e61;/*blue*/;   
+  background-color: #4c5e61;  
   border-radius: 2vh;
   border: solid white;
   margin: 2vh;
@@ -43,7 +43,7 @@ header{
 }
 
 #weapon-box{
-  background-color: #4c5e61;/*blue*/;
+  background-color: #4c5e61;
   border-radius: 2vh;
   border: solid white;
   margin: 2vh;
