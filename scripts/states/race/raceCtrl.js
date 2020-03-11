@@ -152,7 +152,7 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
         var div = angular.element(document.querySelector('#action'));
         div.html('Driving to the starting line, please wait...');
         var payload = {
-            "set": 30
+            "set": 40
         }
         mqttService.publish(throttleTopic, JSON.stringify(payload));        
     }
@@ -303,6 +303,9 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
                     }
                     mqttService.publish(gameStateTopic, JSON.stringify(payload));
                 }
+            }
+            else if(gameState.hasOwnProperty("begin")){
+                start();
             }
         }
 
