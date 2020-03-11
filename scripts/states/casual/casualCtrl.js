@@ -11,6 +11,8 @@ casualCtrl.$inject = [
 function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
     
     var vm = this;
+    
+    var resourceId1;
 
     var channel = $stateParams.channel;//sets channel to one sent from previous state
 
@@ -131,13 +133,71 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
     //triggered when weapon button clicked
     function fireSpecialWeapon(resourceId) {
-        actionUsed(resourceId);//runs actionUsed function to send message to action box
+
+        var resourceId = resourceId1;
+
         let payload = {
             "state": "requested",
             "target": vm.targetChannel
         };
         mqttService.publish(resourceStateTopic.replace(/\{resourceId\}/, resourceId).replace(/\{channel\}/, channel), JSON.stringify(payload));
+        actionUsed(resourceId);
     }
+    
+    function raceCtrl() {
+        
+        var vm = angular.extend(this, {});
+        
+        function weaponBox() {
+
+            buttonEnable();
+
+            var myArray = [
+            "Smart Bomb",
+            "Oil Slick",
+            "Puncture"
+            ];
+        
+            var randomWeapon = myArray[Math.floor(Math.random()*myArray.length)]; 
+            
+            vm.randomWeapon = randomWeapon
+
+            var resourceId;
+
+            if(randomWeapon == "Oil Slick") {
+                resourceId = 1
+            }
+            else if (randomWeapon == "Puncture") {
+                resourceId = 2
+            }
+            else if (randomWeapon == "Smart Bomb") {
+                resourceId = 3
+            }
+
+            var div = angular.element(document.querySelector('#weapon-select'));
+            div.html(randomWeapon);
+
+            resourceId1 = resourceId;
+
+        }
+        vm.weaponBox = weaponBox;
+
+    function lapCount(){
+        var div = angular.element(document.querySelector('#laps-completed'));
+        lap++;
+        div.html('Lap: ' + lap);
+    }
+    vm.lapCount = lapCount;
+
+    function buttonEnable() {
+        document.getElementById("weapon-select").disabled = false;
+      }
+      vm.buttonDisable = buttonEnable;
+
+    function buttonDisable() {
+        document.getElementById("weapon-select").disabled = true;
+      }
+      vm.buttonDisable = buttonDisable;
 
 
 
@@ -207,6 +267,16 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
         return "" + minutes + ":" + seconds + ":" + miliseconds;
     }
     vm.timeFormat = timeFormat;
+        
+    setInterval(stopclock, 10);
+
+    setInterval(weaponBox, 5000);
+    
+    return vm;
+
+    }
+
+    raceCtrl();
 
     /*-----------------
     Challenge functions
