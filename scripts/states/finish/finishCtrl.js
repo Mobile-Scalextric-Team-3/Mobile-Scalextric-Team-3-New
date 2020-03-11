@@ -1,13 +1,13 @@
-angular.module('app.winState').controller('winCtrl', winCtrl);
+angular.module('app').controller('finishCtrl', finishCtrl);
 
-winCtrl.$inject = [
+finishCtrl.$inject = [
     '$rootScope',
     '$state',
     'mqttService',
     'brokerDetails'
 ];
 
-function winCtrl($rootScope, $state, mqttService, brokerDetails) {
+function finishCtrl($rootScope, $state, mqttService, brokerDetails) {
     var vm = this;
 
     function exit(){
