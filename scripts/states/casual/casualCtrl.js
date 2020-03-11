@@ -9,8 +9,10 @@ casualCtrl.$inject = [
 ];
 
 function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
-    
+
     var vm = this;
+
+    var resourceId1;
 
     var changed = false;//variable for checking if user has changed to another webpage
 
@@ -129,6 +131,10 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
     //triggered when weapon button clicked
     function fireSpecialWeapon(resourceId) {
         actionUsed(resourceId);//runs actionUsed function to send message to action box
+
+        var resourceId = resourceId1;
+        //var resourceId = weaponBox();
+
         let payload = {
             "state": "requested",
             "target": vm.targetChannel
@@ -185,8 +191,6 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
         
         function weaponBox() {
 
-            actionUsed(resourceId);
-
             var myArray = [
             "Smart Bomb",
             "Oil Slick",
@@ -194,7 +198,6 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
             ];
         
             var randomWeapon = myArray[Math.floor(Math.random()*myArray.length)]; 
-
             
             vm.randomWeapon = randomWeapon
 
@@ -203,15 +206,25 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
             if(randomWeapon == "Smart Bomb") {
                 resourceId = 1
             }
-            else if (randomWeapon == "Oil Slick") {
+            else if (randomWeapon == "Puncture") {
                 resourceId = 2
             }
-            else if (randomWeapon == "Puncture") {
+            else if (randomWeapon == "Oil Slick") {
                 resourceId = 3
             }
+
             var div = angular.element(document.querySelector('#weapon-select'));
             div.html('weapon: ' + resourceId);
+
+            actionUsed(resourceId);
+
+            resourceId1 = resourceId;
+
+            //return resourceId;
+
         }
+        vm.weaponBox = weaponBox;
+        
 
     function lapCount(){
         var div = angular.element(document.querySelector('#laps-completed'));
@@ -259,11 +272,12 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
     }
     setInterval(stopclock, 10);
 
-    setInterval(weaponBox, 3000)
+    setInterval(weaponBox, 5000)
     
     return vm;
-    
+
     }
+
     raceCtrl();
 
     //watches for throttle change
