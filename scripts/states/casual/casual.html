@@ -21,8 +21,8 @@
     <div id="fastest-lap">Fastest Lap: 00:00:00</div>
     <div id="weapon-box">
         <b>Weapon Box</b><br>
-        <div ng-repeat="resource in casual.resources track by $index">
-            <button ng-model="casual.resources[$index]" ng-click="casual.fireSpecialWeapon(resource.id)">{{resource.name}}</button>
+        <div>
+            <button id="weapon-select" ng-click="casual.fireSpecialWeapon(resource.id)" onClick="buttonDisable()"></button>
         </div>
     </div>
 </div>
