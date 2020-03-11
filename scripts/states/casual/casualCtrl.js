@@ -191,6 +191,8 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
         
         function weaponBox() {
 
+            buttonEnable();
+
             var myArray = [
             "Smart Bomb",
             "Oil Slick",
@@ -220,11 +222,8 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
             resourceId1 = resourceId;
 
-            //return resourceId;
-
         }
         vm.weaponBox = weaponBox;
-        
 
     function lapCount(){
         var div = angular.element(document.querySelector('#laps-completed'));
@@ -232,6 +231,16 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
         div.html('Lap: ' + lap);
     }
     vm.lapCount = lapCount;
+
+    function buttonEnable() {
+        document.getElementById("weapon-select").disabled = false;
+      }
+      vm.buttonDisable = buttonEnable;
+
+    function buttonDisable() {
+        document.getElementById("weapon-select").disabled = true;
+      }
+      vm.buttonDisable = buttonDisable;
 
     function stopclock(){
         var div = angular.element(document.querySelector('#current-lap'));
@@ -272,7 +281,7 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
     }
     setInterval(stopclock, 10);
 
-    setInterval(weaponBox, 5000)
+    setInterval(weaponBox, 5000);
     
     return vm;
 
