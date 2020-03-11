@@ -132,16 +132,6 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
         $state.transitionTo('onboarding', {});
     }
 
-    //triggered when weapon button clicked
-    function fireSpecialWeapon(resourceId) {
-        actionUsed(resourceId);//runs actionUsed function to send message to action box
-        let payload = {
-            "state": "requested",
-            "target": vm.targetChannel
-        };
-        mqttService.publish(resourceStateTopic.replace(/\{resourceId\}/, resourceId).replace(/\{channel\}/, channel), JSON.stringify(payload));
-    }
-
     /*------------
     Race functions
     ------------*/
@@ -180,76 +170,152 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
         });
     }
 
-    /*-----------------------
-    Stopwatch and lap counter
-    ------------------------*/
+    //triggered when weapon button clicked
+    function fireSpecialWeapon(resourceId) {
 
-    //function called in onMessageArrive() when lap sensor triggers
-    function lapCount(){
-        var div = angular.element(document.querySelector('#laps-completed'));
-        var div2 = angular.element(document.querySelector('#fastest-lap'));
-        lap++;//increments lap by 1
+        var resourceId = resourceId1;
 
-        /*checks lap times to see if a new record has been set or if 
-        this is the first lap so set current time as best*/
-        if(bestTime == 0){
-            bestTime = timeRace;
-            div2.html('Fastest Lap: ' + timeFormat(bestTime));
-        }
-        else if(bestTime != 0 && bestTime > timeRace){
-            bestTime = timeRace;
-            div2.html('Fastest Lap: ' + timeFormat(bestTime));
-        }
-        else{
-            div2.html('Fastest Lap: ' + timeFormat(bestTime));
-        }
-        resetClock();
-        div.html('Lap: ' + lap + '/15');
+        let payload = {
+            "state": "requested",
+            "target": vm.targetChannel
+        };
+        mqttService.publish(resourceStateTopic.replace(/\{resourceId\}/, resourceId).replace(/\{channel\}/, channel), JSON.stringify(payload));
+        actionUsed(resourceId);
+    }
+    
+    function carCtrl() {
         
-    }
-    vm.lapCount = lapCount;
+        var vm = angular.extend(this, {});
+        
+        function weaponBox() {
 
-    //called every 10 miliseconds by SetInterval() below and increases time by 1 while displaying it
-    function stopclock(){
-        var div = angular.element(document.querySelector('#current-lap1'));     
-        timeRace++;
-        div.html('Current Lap: ' + timeFormat(timeRace));
-    }    
+            buttonEnable();
 
-    //resets the time varible used by the stopclock to 0;
-    function resetClock(){
-        timeRace = 0;
-        console.log('Clock Reset');
-    }
-    vm.resetClock = resetClock;
+            var myArray = [
+            "Smart Bomb",
+            "Oil Slick",
+            "Puncture"
+            ];
+        
+            var randomWeapon = myArray[Math.floor(Math.random()*myArray.length)]; 
+            
+            vm.randomWeapon = randomWeapon
 
+            var resourceId;
 
-    //takes in a number that is 100ths of a second and converts it into a string in minutes, seconds and miliseconds
-    function timeFormat(number){
-        var miliseconds = 0, seconds = 0, minutes = 0;
-
-        while(number>0){
-            if(number>=6000){
-                number-=6000;
-                minutes++;
+            if(randomWeapon == "Oil Slick") {
+                resourceId = 1
             }
-            else if(number>=100){
-                number-=100;
-                seconds++;
+            else if (randomWeapon == "Puncture") {
+                resourceId = 2
+            }
+            else if (randomWeapon == "Smart Bomb") {
+                resourceId = 3
+            }
+
+            var div = angular.element(document.querySelector('#weapon-select'));
+            div.html(randomWeapon);
+
+            resourceId1 = resourceId;
+
+        }
+        vm.weaponBox = weaponBox;
+
+        function lapCount(){
+            var div = angular.element(document.querySelector('#laps-completed'));
+            lap++;
+            div.html('Lap: ' + lap);
+        }
+        vm.lapCount = lapCount;
+
+        function buttonEnable() {
+            document.getElementById("weapon-select").disabled = false;
+        }
+        vm.buttonDisable = buttonEnable;
+
+        function buttonDisable() {
+            document.getElementById("weapon-select").disabled = true;
+        }
+        vm.buttonDisable = buttonDisable;
+
+
+
+        //function called in onMessageArrive() when lap sensor triggers
+        function lapCount(){
+            var div = angular.element(document.querySelector('#laps-completed'));
+            var div2 = angular.element(document.querySelector('#fastest-lap'));
+            lap++;//increments lap by 1
+
+            /*checks lap times to see if a new record has been set or if 
+            this is the first lap so set current time as best*/
+            if(bestTime == 0){
+                bestTime = timeRace;
+                div2.html('Fastest Lap: ' + timeFormat(bestTime));
+            }
+            else if(bestTime != 0 && bestTime > timeRace){
+                bestTime = timeRace;
+                div2.html('Fastest Lap: ' + timeFormat(bestTime));
             }
             else{
-                miliseconds = number;
-                number -= miliseconds;
+                div2.html('Fastest Lap: ' + timeFormat(bestTime));
             }
+            resetClock();
+            div.html('Laps completed: ' + lap);
+            
         }
+        vm.lapCount = lapCount;
 
-        minutes = (minutes <= 9) ? ("0" + minutes) : minutes;
-        seconds = (seconds <= 9) ? ("0" + seconds) : seconds;
-        miliseconds = (miliseconds <= 9) ? ("0" + miliseconds) : miliseconds;        
+        //called every 10 miliseconds by SetInterval() below and increases time by 1 while displaying it
+        function stopclock(){
+            var div = angular.element(document.querySelector('#current-lap'));     
+            timeRace++;
+            div.html('Current Lap: ' + timeFormat(timeRace));
+        }
+        setInterval(stopclock, 10);
 
-        return "" + minutes + ":" + seconds + ":" + miliseconds;
+        //resets the time varible used by the stopclock to 0;
+        function resetClock(){
+            timeRace = 0;
+        }
+        vm.resetClock = resetClock;
+
+
+        //takes in a number that is 100ths of a second and converts it into a string in minutes, seconds and miliseconds
+        function timeFormat(number){
+            var miliseconds = 0, seconds = 0, minutes = 0;
+
+            while(number>0){
+                if(number>=6000){
+                    number-=6000;
+                    minutes++;
+                }
+                else if(number>=100){
+                    number-=100;
+                    seconds++;
+                }
+                else{
+                    miliseconds = number;
+                    number -= miliseconds;
+                }
+            }
+
+            minutes = (minutes <= 9) ? ("0" + minutes) : minutes;
+            seconds = (seconds <= 9) ? ("0" + seconds) : seconds;
+            miliseconds = (miliseconds <= 9) ? ("0" + miliseconds) : miliseconds;
+
+            return "" + minutes + ":" + seconds + ":" + miliseconds;
+        }
+        vm.timeFormat = timeFormat;
+            
+        setInterval(stopclock, 10);
+
+        setInterval(weaponBox, 5000);
+        
+        return vm;
+
     }
-    vm.timeFormat = timeFormat;
+
+    carCtrl();
 
     /*-----------
     MQTT services
