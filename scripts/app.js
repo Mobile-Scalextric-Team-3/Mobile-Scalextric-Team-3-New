@@ -99,11 +99,37 @@ function config($stateProvider, $urlRouterProvider) {
                 return deferred.promise;
             }]
         }
+    }
+
+    var finishState = {
+        name: 'finish',
+        url: '/finish',
+        templateUrl: 'scripts/states/finish/finish.html',
+        controller: 'finishCtrl',
+        controllerAs: 'finish',
+        params: {
+            channel: null,
+            ip_address: null
+        },
+        resolve: {
+            parameters: ['$q', '$state','$stateParams', function ($q, $state,$stateParams) {
+                var deferred = $q.defer();
+               
+                if ($stateParams.channel === null) {
+                    $state.transitionTo('onboarding', {});
+                }else{
+                    deferred.resolve();
+                }
+
+                return deferred.promise;
+            }]
+        }
     };
 
     $stateProvider.state(onboardingState);
     $stateProvider.state(casualState);
     $stateProvider.state(raceState);
+    $stateProvider.state(finishState);
 
     $urlRouterProvider.otherwise('/onboarding');
 }

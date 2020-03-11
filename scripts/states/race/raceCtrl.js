@@ -173,8 +173,11 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
         resetClock();
     }
 
+    //finish the race
     function finish(){
-        //finish the race and goes to finish state to display who won and different stats
+        $state.transitionTo('finish',{
+            channel: channel,
+        });
     }
 
     /*-----------------------
@@ -277,6 +280,9 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
                     "ready": channel
                 }
                 mqttService.publish(gameStateTopic, JSON.stringify(payload));
+            }
+            else if(lap > 15){
+                finish();
             }
             else{
                 lapCount();

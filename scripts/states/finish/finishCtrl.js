@@ -9,4 +9,10 @@ winCtrl.$inject = [
 
 function winCtrl($rootScope, $state, mqttService, brokerDetails) {
     var vm = this;
+
+    function exit(){
+        mqttService.disconnect();
+        $state.transitionTo('onboarding', {});
+    }
+    vm.exit = exit;
 }

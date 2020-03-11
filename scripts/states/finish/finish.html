@@ -1,19 +1,7 @@
-<uiview>
-  <div class="win">
-    <div id="name">
-      <script type="text/javascript">
-      document.getElementById('name').innerHTML = 
-     "Nickname: " + sessionStorage.getItem('nickname');
-      </script>
-    </div>
-    <h2>You Win</h2>
-    <div id="win">
-    <script>
-    document.getElementById('win').innerHTML = 
-     "Well Done " + sessionStorage.getItem('nickname') + "!";
-    </script>
-    </div>
-    <p1>Here are your stats...</p1><br><br>
-    <button ng-click="$state.go('onboarding')">Exit</button>
-  </div>
-</uiview>
+<input type="button" id="exit" value="x" ng-click="finish.exit()"></input><br>
+<header>
+  <h1>Race Over</h1>
+</header>
+<div>
+  <p1></p1>
+</div>
