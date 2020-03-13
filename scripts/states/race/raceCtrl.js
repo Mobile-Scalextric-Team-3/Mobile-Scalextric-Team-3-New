@@ -4,18 +4,20 @@ raceCtrl.$inject = [
     '$scope',
     '$state',
     '$stateParams',
+    '$interval',
     'stopClock',
     'mqttService',
     'brokerDetails'
 ];
 
-function raceCtrl($scope, $state, $stateParams, stopClock, mqttService, brokerDetails){
+function raceCtrl($scope, $state, $stateParams, $interval, stopClock, mqttService, brokerDetails){
 
     var vm = this;
 
     var channel = $stateParams.channel;//sets channel to one sent from previous state
 
     var sensorChannel = 0;
+    var promise;
 
     var car0Ready = false, car1Ready = false;   
 
@@ -29,6 +31,28 @@ function raceCtrl($scope, $state, $stateParams, stopClock, mqttService, brokerDe
     else if(channel == 1){
         sensorChannel == 3;
     }
+
+    /*---------
+    MQTT Topics
+    ----------*/
+
+    //sets topic details and the subscribes to them
+    var throttleTopic = `${brokerDetails.UUID}/control/${channel}/throttle`;
+    var getResourcesTopic = `${brokerDetails.UUID}/resources`;
+    var resourceStateTopic = `${brokerDetails.UUID}/control/{channel}/{resourceId}/state`;
+
+    var lapSensorTopic = `${brokerDetails.UUID}/sensors/${sensorChannel}`;
+    var gameStateTopic = `${brokerDetails.UUID}/control/game_state`;
+
+    mqttService.subscribe(throttleTopic);
+    mqttService.subscribe(getResourcesTopic);
+
+    mqttService.subscribe(lapSensorTopic);
+    mqttService.subscribe(gameStateTopic);
+
+    /*---------------------------
+    Setter for names and channels
+    ----------------------------*/
 
     //getName function retrieves nickname from session data
     function getName() {
@@ -102,80 +126,9 @@ function raceCtrl($scope, $state, $stateParams, stopClock, mqttService, brokerDe
     vm.stop = stop;
     vm.fireSpecialWeapon = fireSpecialWeapon;
 
-    /*---------
-    MQTT Topics
-    ----------*/
-
-    //sets topic details and the subscribes to them
-    var throttleTopic = `${brokerDetails.UUID}/control/${channel}/throttle`;
-    var getResourcesTopic = `${brokerDetails.UUID}/resources`;
-    var resourceStateTopic = `${brokerDetails.UUID}/control/{channel}/{resourceId}/state`;
-
-    var lapSensorTopic = `${brokerDetails.UUID}/sensors/${sensorChannel}`;
-    var gameStateTopic = `${brokerDetails.UUID}/control/game_state`;
-
-    mqttService.subscribe(throttleTopic);
-    mqttService.subscribe(getResourcesTopic);
-
-    mqttService.subscribe(lapSensorTopic);
-    mqttService.subscribe(gameStateTopic);
-
-
-    //when the 'X' button is pressed
-    function stop() {
-        var payload = {
-            set : 0
-        }
-        mqttService.publish(throttleTopic, JSON.stringify(payload));
-
-        stopClock.endClock();
-
-        mqttService.disconnect();
-        $state.transitionTo('onboarding', {});
-    }
-
-    /*------------
-    Race functions
-    ------------*/
-
-    //sets up the race
-    function setupRace(){
-        stopClock.setLap(0);
-        var div = angular.element(document.querySelector('#action'));
-        div.html('Driving to the starting line, please wait...');
-        var payload = {
-            "set": 40
-        }
-        mqttService.publish(throttleTopic, JSON.stringify(payload));        
-    }
-    setupRace();
-
-    //when cars are ready countdown begins
-    function ready(){
-        var payload = {
-            "set": 0
-        }
-        mqttService.publish(throttleTopic, JSON.stringify(payload));
-    }
-
-    //starts the race
-    function start(){
-        var div = angular.element(document.querySelector('#action'));
-        div.html('Race starts');        
-        stopClock.startClock();
-        stopClock.setLap(1);
-
-    }
-
-    //finish the race
-    function finish(){
-        var div = angular.element(document.querySelector('#action'));
-        div.html('Race over'); 
-        stopClock.endClock();
-        $state.transitionTo('finish',{
-            channel: channel,
-        });
-    }
+    /*-----
+    Weapons
+    ------*/
 
     //triggered when weapon button clicked
     function fireSpecialWeapon(resourceId) {
@@ -238,13 +191,80 @@ function raceCtrl($scope, $state, $stateParams, stopClock, mqttService, brokerDe
         }
         vm.buttonDisable = buttonDisable;
 
-        setInterval(weaponBox, 5000);
+        function startWeaponBox(){
+            promise = $interval(weaponBox, 5000);//calls function weaponBox every 5000 miliseconds(5 seconds)
+        }
+        startWeaponBox();
+
+        function stopWeaponBox(){
+            $interval.cancel(promise);
+        }
+        vm.stopWeaponBox = stopWeaponBox;
         
         return vm;
 
     }
 
     carCtrl();
+
+    /*------------
+    Race functions
+    ------------*/
+
+    //sets up the race
+    function setupRace(){
+        stopClock.setLap(0);
+        var div = angular.element(document.querySelector('#action'));
+        div.html('Driving to the starting line, please wait...');
+        var payload = {
+            "set": 40
+        }
+        mqttService.publish(throttleTopic, JSON.stringify(payload));        
+    }
+    setupRace();
+
+    //when cars are ready countdown begins
+    function ready(){
+        var payload = {
+            "set": 0
+        }
+        mqttService.publish(throttleTopic, JSON.stringify(payload));
+    }
+
+    //starts the race
+    function start(){
+        var div = angular.element(document.querySelector('#action'));
+        div.html('Race starts');        
+        stopClock.startClock();
+        stopClock.setLap(1);
+
+    }
+
+    //finish the race
+    function finish(){
+        var div = angular.element(document.querySelector('#action'));
+        div.html('Race over'); 
+        carCtrl().stopWeaponBox();
+        $state.transitionTo('finish',{
+            channel: channel,
+            bestLap: stopClock.bestTime,
+            time: stopClock.overallTime
+        });
+    }
+
+    //when the 'X' button is pressed
+    function stop() {
+        var payload = {
+            set : 0
+        }
+        mqttService.publish(throttleTopic, JSON.stringify(payload));
+
+        stopClock.endClock();
+        carCtrl().stopWeaponBox();
+
+        mqttService.disconnect();
+        $state.transitionTo('onboarding', {});
+    }
 
     /*-----------
     MQTT services

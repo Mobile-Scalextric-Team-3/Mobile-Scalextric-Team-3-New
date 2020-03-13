@@ -109,6 +109,8 @@ function config($stateProvider, $urlRouterProvider) {
         controllerAs: 'finish',
         params: {
             channel: null,
+            bestLap: null,
+            time: null,
             ip_address: null
         },
         resolve: {

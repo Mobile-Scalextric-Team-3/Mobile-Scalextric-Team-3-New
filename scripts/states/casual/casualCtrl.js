@@ -4,12 +4,13 @@ casualCtrl.$inject = [
     '$scope',
     '$state',
     '$stateParams',
+    '$interval',
     'stopClock',
     'mqttService',
     'brokerDetails'
 ];
 
-function casualCtrl($scope, $state, $stateParams, stopClock, mqttService, brokerDetails) {
+function casualCtrl($scope, $state, $stateParams, $interval, stopClock, mqttService, brokerDetails) {
 
     var vm = this;
 
@@ -20,6 +21,8 @@ function casualCtrl($scope, $state, $stateParams, stopClock, mqttService, broker
     var sensorChannel = 0;
 
     vm.showButtons = false;
+
+    var promise;
 
     stopClock.startClock();
     stopClock.setRaceMode(false);
@@ -186,7 +189,15 @@ function casualCtrl($scope, $state, $stateParams, stopClock, mqttService, broker
         }
         vm.buttonDisable = buttonDisable;       
 
-        setInterval(weaponBox, 5000);//calls function weaponBox every 5000 miliseconds(5 seconds)
+        function startWeaponBox(){
+            promise = $interval(weaponBox, 5000);//calls function weaponBox every 5000 miliseconds(5 seconds)
+        }
+        startWeaponBox();
+
+        function stopWeaponBox(){
+            $interval.cancel(promise);
+        }
+        vm.stopWeaponBox = stopWeaponBox;
         
         return vm;
 
@@ -242,6 +253,7 @@ function casualCtrl($scope, $state, $stateParams, stopClock, mqttService, broker
     //both accepted
     function bothAccept(){
         stopClock.endClock();
+        carCtrl().stopWeaponBox();
         $state.transitionTo('race',{
             channel: channel,
         });
@@ -255,6 +267,7 @@ function casualCtrl($scope, $state, $stateParams, stopClock, mqttService, broker
         mqttService.publish(throttleTopic, JSON.stringify(payload));
 
         stopClock.endClock();
+        carCtrl().stopWeaponBox();
 
         mqttService.disconnect();
         $state.transitionTo('onboarding', {});

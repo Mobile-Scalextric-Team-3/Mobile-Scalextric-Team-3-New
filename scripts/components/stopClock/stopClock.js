@@ -20,7 +20,10 @@ function stopClock($interval){
 
     self.lap = 0;//current lap
 
-    var time = 0, bestTime = 0;//used by the stopclock to check times
+    var time = 0;
+    
+    self.bestTime = 0;//used by the stopclock to check times
+    self.overallTime = 0;
 
     var raceMode = false;
 
@@ -31,16 +34,16 @@ function stopClock($interval){
 
         /*checks lap times to see if a new record has been set or if 
         this is the first lap so set current time as best*/
-        if(bestTime == 0){
-            bestTime = time;
-            div2.html('Fastest Lap: ' + timeFormat(bestTime));
+        if(self.bestTime == 0){
+            self.bestTime = time;
+            div2.html('Fastest Lap: ' + timeFormat(self.bestTime));
         }
-        else if(bestTime != 0 && bestTime > time){
-            bestTime = time;
-            div2.html('Fastest Lap: ' + timeFormat(bestTime));
+        else if(self.bestTime != 0 && self.bestTime > time){
+            self.bestTime = time;
+            div2.html('Fastest Lap: ' + timeFormat(self.bestTime));
         }
         else{
-            div2.html('Fastest Lap: ' + timeFormat(bestTime));
+            div2.html('Fastest Lap: ' + timeFormat(self.bestTime));
         }
         time = 0;
 
@@ -56,6 +59,7 @@ function stopClock($interval){
     function stopclock(){
         var div = angular.element(document.querySelector('#current-lap'));     
         time++;
+        self.overallTime++;
         div.html('Current Lap: ' + timeFormat(time));
     }
 
@@ -100,6 +104,7 @@ function stopClock($interval){
     function endClock(){        
         $interval.cancel(promise);
         time = 0;
+        self.overallTime = 0;
         self.lap = 0;
     }
 }
