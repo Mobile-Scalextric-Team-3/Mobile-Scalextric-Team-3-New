@@ -32,6 +32,24 @@ function casualCtrl($scope, $state, $stateParams, stopClock, mqttService, broker
         sensorChannel == 3;
     }
 
+    //sets topic details and the subscribes to them
+    var throttleTopic = `${brokerDetails.UUID}/control/${channel}/throttle`;
+    var getResourcesTopic = `${brokerDetails.UUID}/resources`;
+    var resourceStateTopic = `${brokerDetails.UUID}/control/{channel}/{resourceId}/state`;
+
+    var gameStateTopic = `${brokerDetails.UUID}/control/game_state`;
+    var lapSensorTopic = `${brokerDetails.UUID}/sensors/${sensorChannel}`;
+
+    mqttService.subscribe(throttleTopic);
+    mqttService.subscribe(getResourcesTopic);
+
+    mqttService.subscribe(lapSensorTopic);
+    mqttService.subscribe(gameStateTopic);
+
+    /*---------------------------
+    Setter for names and channels
+    ----------------------------*/
+
     //getName function retrieves nickname from session data
     function getName() {
         document.getElementById('unique').innerHTML = 
@@ -84,7 +102,6 @@ function casualCtrl($scope, $state, $stateParams, stopClock, mqttService, broker
     vm.actionUsed = actionUsed;
 
 
-
     //sets up throttle by defaulting it to 0
     const DEFAULT_THROTTLE = 0;
     vm.throttle = DEFAULT_THROTTLE;
@@ -103,35 +120,6 @@ function casualCtrl($scope, $state, $stateParams, stopClock, mqttService, broker
 
     vm.stop = stop;
     vm.fireSpecialWeapon = fireSpecialWeapon;
-
-    //sets topic details and the subscribes to them
-    var throttleTopic = `${brokerDetails.UUID}/control/${channel}/throttle`;
-    var getResourcesTopic = `${brokerDetails.UUID}/resources`;
-    var resourceStateTopic = `${brokerDetails.UUID}/control/{channel}/{resourceId}/state`;
-
-    var gameStateTopic = `${brokerDetails.UUID}/control/game_state`;
-    var lapSensorTopic = `${brokerDetails.UUID}/sensors/${sensorChannel}`;
-
-    mqttService.subscribe(throttleTopic);
-    mqttService.subscribe(getResourcesTopic);
-
-    mqttService.subscribe(lapSensorTopic);
-    mqttService.subscribe(gameStateTopic);
-
-
-
-    //when the 'X' button is pressed
-    function stop() {
-        var payload = {
-            set : 0
-        }
-        mqttService.publish(throttleTopic, JSON.stringify(payload));
-
-        stopClock.endClock();
-
-        mqttService.disconnect();
-        $state.transitionTo('onboarding', {});
-    }
 
     /*---------
     Weapons Box
@@ -257,6 +245,19 @@ function casualCtrl($scope, $state, $stateParams, stopClock, mqttService, broker
         $state.transitionTo('race',{
             channel: channel,
         });
+    }
+
+    //when the 'X' button is pressed
+    function stop() {
+        var payload = {
+            set : 0
+        }
+        mqttService.publish(throttleTopic, JSON.stringify(payload));
+
+        stopClock.endClock();
+
+        mqttService.disconnect();
+        $state.transitionTo('onboarding', {});
     }
 
 
