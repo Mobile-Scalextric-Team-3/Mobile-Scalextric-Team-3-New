@@ -130,16 +130,15 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
     //triggered when weapon button clicked
     function fireSpecialWeapon(resourceId) {
-        actionUsed(resourceId);//runs actionUsed function to send message to action box
 
         var resourceId = resourceId1;
-        //var resourceId = weaponBox();
 
         let payload = {
             "state": "requested",
             "target": vm.targetChannel
         };
         mqttService.publish(resourceStateTopic.replace(/\{resourceId\}/, resourceId).replace(/\{channel\}/, channel), JSON.stringify(payload));
+        actionUsed(resourceId);
     }
 
     //stops when page is closed or changed
@@ -205,20 +204,18 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
             var resourceId;
 
-            if(randomWeapon == "Smart Bomb") {
+            if(randomWeapon == "Oil Slick") {
                 resourceId = 1
             }
             else if (randomWeapon == "Puncture") {
                 resourceId = 2
             }
-            else if (randomWeapon == "Oil Slick") {
+            else if (randomWeapon == "Smart Bomb") {
                 resourceId = 3
             }
 
             var div = angular.element(document.querySelector('#weapon-select'));
-            div.html('weapon: ' + resourceId);
-
-            actionUsed(resourceId);
+            div.html(randomWeapon);
 
             resourceId1 = resourceId;
 
