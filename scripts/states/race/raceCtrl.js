@@ -4,11 +4,12 @@ raceCtrl.$inject = [
     '$scope',
     '$state',
     '$stateParams',
+    'stopClock',
     'mqttService',
     'brokerDetails'
 ];
 
-function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
+function raceCtrl($scope, $state, $stateParams, stopClock, mqttService, brokerDetails){
 
     var vm = this;
 
@@ -16,10 +17,10 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
 
     var sensorChannel = 0;
 
-    var lap = 0;//current lap
-    var timeRace = 0, bestTime = 0;//used by the stopclock to check times
+    var car0Ready = false, car1Ready = false;   
 
-    var car0Ready = false, car1Ready = false;
+    stopClock.setRaceMode(true);
+    console.log(stopClock.raceMode);
 
     //sets sensor channel
     if(channel == 0){
@@ -122,11 +123,12 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
 
     //when the 'X' button is pressed
     function stop() {
-        resetClock();
         var payload = {
             set : 0
         }
         mqttService.publish(throttleTopic, JSON.stringify(payload));
+
+        stopClock.endClock();
 
         mqttService.disconnect();
         $state.transitionTo('onboarding', {});
@@ -138,7 +140,7 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
 
     //sets up the race
     function setupRace(){
-        lap = 0;
+        stopClock.setLap(0);
         var div = angular.element(document.querySelector('#action'));
         div.html('Driving to the starting line, please wait...');
         var payload = {
@@ -158,13 +160,18 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
 
     //starts the race
     function start(){
-        lap = 1;
-        setInterval(stopclock, 10);
-        resetClock();
+        var div = angular.element(document.querySelector('#action'));
+        div.html('Race starts');        
+        stopClock.startClock();
+        stopClock.setLap(1);
+
     }
 
     //finish the race
     function finish(){
+        var div = angular.element(document.querySelector('#action'));
+        div.html('Race over'); 
+        stopClock.endClock();
         $state.transitionTo('finish',{
             channel: channel,
         });
@@ -221,13 +228,6 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
         }
         vm.weaponBox = weaponBox;
 
-        function lapCount(){
-            var div = angular.element(document.querySelector('#laps-completed'));
-            lap++;
-            div.html('Lap: ' + lap);
-        }
-        vm.lapCount = lapCount;
-
         function buttonEnable() {
             document.getElementById("weapon-select").disabled = false;
         }
@@ -237,77 +237,6 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
             document.getElementById("weapon-select").disabled = true;
         }
         vm.buttonDisable = buttonDisable;
-
-
-
-        //function called in onMessageArrive() when lap sensor triggers
-        function lapCount(){
-            var div = angular.element(document.querySelector('#laps-completed'));
-            var div2 = angular.element(document.querySelector('#fastest-lap'));
-            lap++;//increments lap by 1
-
-            /*checks lap times to see if a new record has been set or if 
-            this is the first lap so set current time as best*/
-            if(bestTime == 0){
-                bestTime = timeRace;
-                div2.html('Fastest Lap: ' + timeFormat(bestTime));
-            }
-            else if(bestTime != 0 && bestTime > timeRace){
-                bestTime = timeRace;
-                div2.html('Fastest Lap: ' + timeFormat(bestTime));
-            }
-            else{
-                div2.html('Fastest Lap: ' + timeFormat(bestTime));
-            }
-            resetClock();
-            div.html('Laps completed: ' + lap);
-            
-        }
-        vm.lapCount = lapCount;
-
-        //called every 10 miliseconds by SetInterval() below and increases time by 1 while displaying it
-        function stopclock(){
-            var div = angular.element(document.querySelector('#current-lap'));     
-            timeRace++;
-            div.html('Current Lap: ' + timeFormat(timeRace));
-        }
-        setInterval(stopclock, 10);
-
-        //resets the time varible used by the stopclock to 0;
-        function resetClock(){
-            timeRace = 0;
-        }
-        vm.resetClock = resetClock;
-
-
-        //takes in a number that is 100ths of a second and converts it into a string in minutes, seconds and miliseconds
-        function timeFormat(number){
-            var miliseconds = 0, seconds = 0, minutes = 0;
-
-            while(number>0){
-                if(number>=6000){
-                    number-=6000;
-                    minutes++;
-                }
-                else if(number>=100){
-                    number-=100;
-                    seconds++;
-                }
-                else{
-                    miliseconds = number;
-                    number -= miliseconds;
-                }
-            }
-
-            minutes = (minutes <= 9) ? ("0" + minutes) : minutes;
-            seconds = (seconds <= 9) ? ("0" + seconds) : seconds;
-            miliseconds = (miliseconds <= 9) ? ("0" + miliseconds) : miliseconds;
-
-            return "" + minutes + ":" + seconds + ":" + miliseconds;
-        }
-        vm.timeFormat = timeFormat;
-            
-        setInterval(stopclock, 10);
 
         setInterval(weaponBox, 5000);
         
@@ -341,17 +270,17 @@ function raceCtrl($scope, $state, $stateParams, mqttService, brokerDetails){
             $scope.$apply();
         }
         else if(message.topic === lapSensorTopic){
-            if(lap == 0){
+            if(stopClock.lap == 0){
                 var payload = {
                     "ready": channel
                 }
                 mqttService.publish(gameStateTopic, JSON.stringify(payload));
             }
-            else if(lap > 15){
+            else if(stopClock.lap == 15){
                 finish();
             }
             else{
-                lapCount();
+                stopClock.lapCount();
             }        
 
         }

@@ -4,12 +4,13 @@ casualCtrl.$inject = [
     '$scope',
     '$state',
     '$stateParams',
+    'stopClock',
     'mqttService',
     'brokerDetails'
 ];
 
-function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
-    
+function casualCtrl($scope, $state, $stateParams, stopClock, mqttService, brokerDetails) {
+
     var vm = this;
     
     var resourceId1;
@@ -20,8 +21,10 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
     vm.showButtons = false;
 
-    var lap = 0;//current lap
-    var time = 0, bestTime = 0;//used by the stopclock to check times
+    var Countermeasure = false;
+
+    stopClock.startClock();
+    stopClock.setRaceMode(false);
 
     //sets sensor channel
     if(channel == 0){
@@ -29,6 +32,11 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
     }
     else if(channel == 1){
         sensorChannel == 3;
+    }
+
+    function sendMessageToActionBox(message){
+        var div = angular.element(document.querySelector('#action'));
+        div.html('' + message);
     }
 
     //getName function retrieves nickname from session data
@@ -121,27 +129,38 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
     //when the 'X' button is pressed
     function stop() {
-        resetClock();
         var payload = {
             set : 0
         }
         mqttService.publish(throttleTopic, JSON.stringify(payload));
 
+        stopClock.endClock();
+
         mqttService.disconnect();
         $state.transitionTo('onboarding', {});
     }
+
+    /*---------
+    Weapons Box
+    ----------*/
 
     //triggered when weapon button clicked
     function fireSpecialWeapon(resourceId) {
 
         var resourceId = resourceId1;
 
-        let payload = {
-            "state": "requested",
-            "target": vm.targetChannel
-        };
-        mqttService.publish(resourceStateTopic.replace(/\{resourceId\}/, resourceId).replace(/\{channel\}/, channel), JSON.stringify(payload));
-        actionUsed(resourceId);
+        if(resourceId == 4){
+            Countermeasure = true;
+            sendMessageToActionBox("Shield Activated");
+        }
+        else{
+            let payload = {
+                "state": "requested",
+                "target": vm.targetChannel
+            };
+            mqttService.publish(resourceStateTopic.replace(/\{resourceId\}/, resourceId).replace(/\{channel\}/, channel), JSON.stringify(payload));
+            actionUsed(resourceId);
+        }        
     }
     
     function carCtrl() {
@@ -155,7 +174,8 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
             var myArray = [
             "Smart Bomb",
             "Oil Slick",
-            "Puncture"
+            "Puncture",
+            "Shield"
             ];
         
             var randomWeapon = myArray[Math.floor(Math.random()*myArray.length)]; 
@@ -173,6 +193,9 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
             else if (randomWeapon == "Smart Bomb") {
                 resourceId = 3
             }
+            else if (randomWeapon == "Shield"){
+                resourceId = 4
+            }
 
             var div = angular.element(document.querySelector('#weapon-select'));
             div.html(randomWeapon);
@@ -180,14 +203,7 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
             resourceId1 = resourceId;
 
         }
-        vm.weaponBox = weaponBox;
-
-        function lapCount(){
-            var div = angular.element(document.querySelector('#laps-completed'));
-            lap++;
-            div.html('Lap: ' + lap);
-        }
-        vm.lapCount = lapCount;
+        vm.weaponBox = weaponBox;        
 
         function buttonEnable() {
             document.getElementById("weapon-select").disabled = false;
@@ -197,86 +213,15 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
         function buttonDisable() {
             document.getElementById("weapon-select").disabled = true;
         }
-        vm.buttonDisable = buttonDisable;
+        vm.buttonDisable = buttonDisable;       
 
-
-
-        //function called in onMessageArrive() when lap sensor triggers
-        function lapCount(){
-            var div = angular.element(document.querySelector('#laps-completed'));
-            var div2 = angular.element(document.querySelector('#fastest-lap'));
-            lap++;//increments lap by 1
-
-            /*checks lap times to see if a new record has been set or if 
-            this is the first lap so set current time as best*/
-            if(bestTime == 0){
-                bestTime = time;
-                div2.html('Fastest Lap: ' + timeFormat(bestTime));
-            }
-            else if(bestTime != 0 && bestTime > time){
-                bestTime = time;
-                div2.html('Fastest Lap: ' + timeFormat(bestTime));
-            }
-            else{
-                div2.html('Fastest Lap: ' + timeFormat(bestTime));
-            }
-            resetClock();
-            div.html('Laps completed: ' + lap);
-            
-        }
-        vm.lapCount = lapCount;
-
-        //called every 10 miliseconds by SetInterval() below and increases time by 1 while displaying it
-        function stopclock(){
-            var div = angular.element(document.querySelector('#current-lap'));     
-            time++;
-            div.html('Current Lap: ' + timeFormat(time));
-        }
-        setInterval(stopclock, 10);
-
-        //resets the time varible used by the stopclock to 0;
-        function resetClock(){
-            time = 0;
-        }
-        vm.resetClock = resetClock;
-
-
-        //takes in a number that is 100ths of a second and converts it into a string in minutes, seconds and miliseconds
-        function timeFormat(number){
-            var miliseconds = 0, seconds = 0, minutes = 0;
-
-            while(number>0){
-                if(number>=6000){
-                    number-=6000;
-                    minutes++;
-                }
-                else if(number>=100){
-                    number-=100;
-                    seconds++;
-                }
-                else{
-                    miliseconds = number;
-                    number -= miliseconds;
-                }
-            }
-
-            minutes = (minutes <= 9) ? ("0" + minutes) : minutes;
-            seconds = (seconds <= 9) ? ("0" + seconds) : seconds;
-            miliseconds = (miliseconds <= 9) ? ("0" + miliseconds) : miliseconds;
-
-            return "" + minutes + ":" + seconds + ":" + miliseconds;
-        }
-        vm.timeFormat = timeFormat;
-            
-        setInterval(stopclock, 10);
-
-        setInterval(weaponBox, 5000);
+        setInterval(weaponBox, 5000);//calls function weaponBox every 5000 miliseconds(5 seconds)
         
         return vm;
 
     }
-
     carCtrl();
+     
 
     /*-----------------
     Challenge functions
@@ -325,6 +270,7 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
     //both accepted
     function bothAccept(){
+        stopClock.endClock();
         $state.transitionTo('race',{
             channel: channel,
         });
@@ -355,7 +301,7 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
             $scope.$apply();
         }
         else if(message.topic === lapSensorTopic){
-            lapCount();
+            stopClock.lapCount();
         }
         else if(message.topic === gameStateTopic){
             var gameState = JSON.parse(message.payloadString);
