@@ -3,12 +3,6 @@ angular.module('app').service('mqttService', mqttService);
 mqttService.$inject = [
 ];
 
-
-/*
-    Mqtt Service uses Eclipse Paho JavaScript Client found :
-        - https://github.com/eclipse/paho.mqtt.javascript
-        - https://web.archive.org/web/20181212171208/https://github.com/eclipse/paho.mqtt.javascript
-*/
 function mqttService() {
     var self = this;
 
