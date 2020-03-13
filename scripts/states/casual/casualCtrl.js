@@ -21,8 +21,6 @@ function casualCtrl($scope, $state, $stateParams, stopClock, mqttService, broker
 
     vm.showButtons = false;
 
-    var Countermeasure = false;
-
     stopClock.startClock();
     stopClock.setRaceMode(false);
 
@@ -32,11 +30,6 @@ function casualCtrl($scope, $state, $stateParams, stopClock, mqttService, broker
     }
     else if(channel == 1){
         sensorChannel == 3;
-    }
-
-    function sendMessageToActionBox(message){
-        var div = angular.element(document.querySelector('#action'));
-        div.html('' + message);
     }
 
     //getName function retrieves nickname from session data
@@ -149,18 +142,12 @@ function casualCtrl($scope, $state, $stateParams, stopClock, mqttService, broker
 
         var resourceId = resourceId1;
 
-        if(resourceId == 4){
-            Countermeasure = true;
-            sendMessageToActionBox("Shield Activated");
-        }
-        else{
-            let payload = {
-                "state": "requested",
-                "target": vm.targetChannel
-            };
-            mqttService.publish(resourceStateTopic.replace(/\{resourceId\}/, resourceId).replace(/\{channel\}/, channel), JSON.stringify(payload));
-            actionUsed(resourceId);
-        }        
+        let payload = {
+            "state": "requested",
+            "target": vm.targetChannel
+        };
+        mqttService.publish(resourceStateTopic.replace(/\{resourceId\}/, resourceId).replace(/\{channel\}/, channel), JSON.stringify(payload));
+        actionUsed(resourceId);   
     }
     
     function carCtrl() {
@@ -174,8 +161,7 @@ function casualCtrl($scope, $state, $stateParams, stopClock, mqttService, broker
             var myArray = [
             "Smart Bomb",
             "Oil Slick",
-            "Puncture",
-            "Shield"
+            "Puncture"
             ];
         
             var randomWeapon = myArray[Math.floor(Math.random()*myArray.length)]; 
@@ -192,9 +178,6 @@ function casualCtrl($scope, $state, $stateParams, stopClock, mqttService, broker
             }
             else if (randomWeapon == "Smart Bomb") {
                 resourceId = 3
-            }
-            else if (randomWeapon == "Shield"){
-                resourceId = 4
             }
 
             var div = angular.element(document.querySelector('#weapon-select'));
@@ -308,7 +291,7 @@ function casualCtrl($scope, $state, $stateParams, stopClock, mqttService, broker
             if(gameState.hasOwnProperty("request")){
                 if(channel != gameState.request){
                     receiveChallenge();
-                }                
+                }       
             }
             else if(gameState.hasOwnProperty("accepted")){
                 if(gameState.accepted){
