@@ -64,3 +64,65 @@ header{
   left: 6%;
   top: 3%;
 }
+
+#weapon-select{
+  background-color: #FF3004;
+  font-size: 12px;
+  padding: 2px;
+  border-radius: 3px;
+  border-color: white;
+  width: 80px;
+  color: white;
+}
+
+#weapon-select:disabled{
+  opacity: 0.6;
+}
+
+#exit{
+  background-color: red;
+  border-color: white;
+  border-radius: 4px;
+  font-size: 15px;
+  color: white;
+}
+
+#challenge {
+  background-color: #4c5e61;
+  color: white;
+  border-radius: 4px;
+  font-size: 15px;
+  padding: 3px;
+  width: 90px;
+}
+
+#Go{
+  background-color: green;
+  color: white;
+  border-radius: 10px;
+  border-color: white;
+  font-size: 15px;
+  height: 40px;
+  width: 80px;
+}
+
+#select{
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+#accept{
+  background-color: green;
+  color: white;
+  border-radius: 5px;
+  border-color: white;
+  font-size: 12px;
+}
+
+#reject{
+  background-color: red;
+  color: white;
+  border-radius: 5px;
+  border-color: white;
+  font-size: 12px;
+}

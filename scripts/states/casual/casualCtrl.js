@@ -12,7 +12,7 @@ casualCtrl.$inject = [
 function casualCtrl($scope, $state, $stateParams, stopClock, mqttService, brokerDetails) {
 
     var vm = this;
-    
+
     var resourceId1;
 
     var channel = $stateParams.channel;//sets channel to one sent from previous state
