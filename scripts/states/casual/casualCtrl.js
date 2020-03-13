@@ -14,17 +14,14 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
     var resourceId1;
 
-    var changed = false;//variable for checking if user has changed to another webpage
-
     var channel = $stateParams.channel;//sets channel to one sent from previous state
 
     var sensorChannel = 0;
 
-    var lap = 0;
+    vm.showButtons = false;
 
-    var mili = 0;
-    var secs = 0;
-    var mins = 0;
+    var lap = 0;//current lap
+    var time = 0, bestTime = 0;//used by the stopclock to check times
 
     //sets sensor channel
     if(channel == 0){
@@ -58,7 +55,6 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
     vm.setChannel = setChannel;
     setChannel();
 
-
     //function controls action box and displays the messages in it
     function actionUsed(resourceId){
         var target = vm.targetChannel;
@@ -86,6 +82,8 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
 
     vm.actionUsed = actionUsed;
 
+
+
     //sets up throttle by defaulting it to 0
     const DEFAULT_THROTTLE = 0;
     vm.throttle = DEFAULT_THROTTLE;
@@ -110,20 +108,25 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
     var getResourcesTopic = `${brokerDetails.UUID}/resources`;
     var resourceStateTopic = `${brokerDetails.UUID}/control/{channel}/{resourceId}/state`;
 
+    var gameStateTopic = `${brokerDetails.UUID}/control/game_state`;
     var lapSensorTopic = `${brokerDetails.UUID}/sensors/${sensorChannel}`;
 
     mqttService.subscribe(throttleTopic);
     mqttService.subscribe(getResourcesTopic);
 
     mqttService.subscribe(lapSensorTopic);
+    mqttService.subscribe(gameStateTopic);
+
+
 
     //when the 'X' button is pressed
     function stop() {
+        resetClock();
         var payload = {
             set : 0
         }
         mqttService.publish(throttleTopic, JSON.stringify(payload));
-        
+
         mqttService.disconnect();
         $state.transitionTo('onboarding', {});
     }
@@ -140,51 +143,8 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
         mqttService.publish(resourceStateTopic.replace(/\{resourceId\}/, resourceId).replace(/\{channel\}/, channel), JSON.stringify(payload));
         actionUsed(resourceId);
     }
-
-    //stops when page is closed or changed
-    window.onhashchange = function () {
-        if (changed) {
-            console.log('changed');
-            stop();
-        } else {
-            changed = true;
-        }
-    }
     
-    //sends mqtt messages to the console
-    mqttService.onMessageArrived(function (message) {
-
-        console.log(message);
-
-        if (message.topic === throttleTopic) {
-            var throttle  = JSON.parse(message.payloadString);
-
-            //sets actual throttle to what mqtt sever says it is
-            if(throttle.hasOwnProperty("throttle")){
-                vm.actualThrottle = throttle.throttle;
-            }
-        } else if (message.topic === getResourcesTopic) {
-            vm.resources = JSON.parse(message.payloadString);
-            vm.resources.forEach(resource => {
-                mqttService.subscribe(resourceStateTopic.replace(/\{resourceId\}/, resource.id));
-            });
-            $scope.$apply();
-        }
-        else if(message.topic === lapSensorTopic){
-            lapCount();
-        }
-
-        if (vm.resources !== undefined) {
-            vm.resources.forEach(resource => {
-                if (message.topic === resourceStateTopic.replace(/\{resourceId\}/, resource.id)) {
-                    console.log(message);
-                }
-            })
-        }
-
-    });
-
-    function raceCtrl() {
+    function carCtrl() {
         
         var vm = angular.extend(this, {});
         
@@ -222,69 +182,203 @@ function casualCtrl($scope, $state, $stateParams, mqttService, brokerDetails) {
         }
         vm.weaponBox = weaponBox;
 
-    function lapCount(){
-        var div = angular.element(document.querySelector('#laps-completed'));
-        lap++;
-        div.html('Lap: ' + lap);
+        function lapCount(){
+            var div = angular.element(document.querySelector('#laps-completed'));
+            lap++;
+            div.html('Lap: ' + lap);
+        }
+        vm.lapCount = lapCount;
+
+        function buttonEnable() {
+            document.getElementById("weapon-select").disabled = false;
+        }
+        vm.buttonDisable = buttonEnable;
+
+        function buttonDisable() {
+            document.getElementById("weapon-select").disabled = true;
+        }
+        vm.buttonDisable = buttonDisable;
+
+
+
+        //function called in onMessageArrive() when lap sensor triggers
+        function lapCount(){
+            var div = angular.element(document.querySelector('#laps-completed'));
+            var div2 = angular.element(document.querySelector('#fastest-lap'));
+            lap++;//increments lap by 1
+
+            /*checks lap times to see if a new record has been set or if 
+            this is the first lap so set current time as best*/
+            if(bestTime == 0){
+                bestTime = time;
+                div2.html('Fastest Lap: ' + timeFormat(bestTime));
+            }
+            else if(bestTime != 0 && bestTime > time){
+                bestTime = time;
+                div2.html('Fastest Lap: ' + timeFormat(bestTime));
+            }
+            else{
+                div2.html('Fastest Lap: ' + timeFormat(bestTime));
+            }
+            resetClock();
+            div.html('Laps completed: ' + lap);
+            
+        }
+        vm.lapCount = lapCount;
+
+        //called every 10 miliseconds by SetInterval() below and increases time by 1 while displaying it
+        function stopclock(){
+            var div = angular.element(document.querySelector('#current-lap'));     
+            time++;
+            div.html('Current Lap: ' + timeFormat(time));
+        }
+        setInterval(stopclock, 10);
+
+        //resets the time varible used by the stopclock to 0;
+        function resetClock(){
+            time = 0;
+        }
+        vm.resetClock = resetClock;
+
+
+        //takes in a number that is 100ths of a second and converts it into a string in minutes, seconds and miliseconds
+        function timeFormat(number){
+            var miliseconds = 0, seconds = 0, minutes = 0;
+
+            while(number>0){
+                if(number>=6000){
+                    number-=6000;
+                    minutes++;
+                }
+                else if(number>=100){
+                    number-=100;
+                    seconds++;
+                }
+                else{
+                    miliseconds = number;
+                    number -= miliseconds;
+                }
+            }
+
+            minutes = (minutes <= 9) ? ("0" + minutes) : minutes;
+            seconds = (seconds <= 9) ? ("0" + seconds) : seconds;
+            miliseconds = (miliseconds <= 9) ? ("0" + miliseconds) : miliseconds;
+
+            return "" + minutes + ":" + seconds + ":" + miliseconds;
+        }
+        vm.timeFormat = timeFormat;
+            
+        setInterval(stopclock, 10);
+
+        setInterval(weaponBox, 5000);
+        
+        return vm;
+
     }
-    vm.lapCount = lapCount;
 
-    function buttonEnable() {
-        document.getElementById("weapon-select").disabled = false;
-      }
-      vm.buttonDisable = buttonEnable;
+    carCtrl();
 
-    function buttonDisable() {
-        document.getElementById("weapon-select").disabled = true;
-      }
-      vm.buttonDisable = buttonDisable;
+    /*-----------------
+    Challenge functions
+    -------------------*/
 
-    function stopclock(){
-        var div = angular.element(document.querySelector('#current-lap'));
-        var mili0;
-        var secs0;
-        var mins0;
-        mili++;
-        if(mili >= 99){
-            secs++;
-            mili=0;
-        }
-        if(secs >= 59){
-            mins++;
-            secs=0;
-        }
+    //sends challenge request when button pressed
+    function sendChallenge(){
+        var div = angular.element(document.querySelector('#action'));
+        div.html('Challenge request sent');
 
-        if(mili < 10){
-            mili0 = "0" + mili;
+        var payload = {
+            "request": channel
         }
-        else{
-            mili0 = mili;
-        }
-
-        if(secs < 10){
-            secs0 = "0" + secs;
-        }
-        else{
-            secs0 = secs
-        }
-
-        if(mins < 10){
-            mins0 = "0" + mins;
-        }
-        else{
-            mins0 = mins;
-        }
-        div.html('Current Lap: '+ mins0 + ":"+ secs0 + ":" + mili0);
+        mqttService.publish(gameStateTopic, JSON.stringify(payload));
     }
-    setInterval(stopclock, 10);
+    vm.sendChallenge = sendChallenge;
 
-    setInterval(weaponBox, 5000);
+    //display challenge request
+    function receiveChallenge(){
+        var div = angular.element(document.querySelector('#action'));
+        div.html('Challenge recieved');
+        vm.showButtons = true;
+        $scope.$apply();//angular refreshes on certain events but must be forced to here by using $scope.$apply()
+    }
+    vm.receiveChallenge = receiveChallenge;
+
+    //sends accepted race to mqtt
+    function acceptRace(){
+        var payload = {
+            "accepted": true
+        }
+        mqttService.publish(gameStateTopic, JSON.stringify(payload));
+        var div = angular.element(document.querySelector('#action'));
+        div.html('Race accepted');
+        vm.showButtons = false;
+    }
+    vm.acceptRace = acceptRace;
+
+    //carries on in casual and displays message saying rejected
+    function rejectRace(){        
+        var div = angular.element(document.querySelector('#action'));
+        div.html('No weapon has been used yet');
+        vm.showButtons = false;
+    }
+    vm.rejectRace = rejectRace;
+
+    //both accepted
+    function bothAccept(){
+        $state.transitionTo('race',{
+            channel: channel,
+        });
+    }
+
+
+    /*-----------
+    MQTT messages
+    -----------*/
     
-    return vm;
+    //sends mqtt messages to the console
+    mqttService.onMessageArrived(function (message) {
 
-    }
+        console.log(message);
 
-    raceCtrl();
+        if (message.topic === throttleTopic) {
+            var throttle  = JSON.parse(message.payloadString);
+
+            //sets actual throttle to what mqtt sever says it is
+            if(throttle.hasOwnProperty("throttle")){
+                vm.actualThrottle = throttle.throttle;
+            }
+        } else if (message.topic === getResourcesTopic) {
+            vm.resources = JSON.parse(message.payloadString);
+            vm.resources.forEach(resource => {
+                mqttService.subscribe(resourceStateTopic.replace(/\{resourceId\}/, resource.id));
+            });
+            $scope.$apply();
+        }
+        else if(message.topic === lapSensorTopic){
+            lapCount();
+        }
+        else if(message.topic === gameStateTopic){
+            var gameState = JSON.parse(message.payloadString);
+            if(gameState.hasOwnProperty("request")){
+                if(channel != gameState.request){
+                    receiveChallenge();
+                }                
+            }
+            else if(gameState.hasOwnProperty("accepted")){
+                if(gameState.accepted){
+                    bothAccept();
+                }
+            }
+        }
+
+        if (vm.resources !== undefined) {
+            vm.resources.forEach(resource => {
+                if (message.topic === resourceStateTopic.replace(/\{resourceId\}/, resource.id)) {
+                    console.log(message);
+                }
+            })
+        }
+    });   
 
     //watches for throttle change
     $scope.$watch("casual.throttle", function (newThrottle, oldThrottle) {

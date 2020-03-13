@@ -26,7 +26,9 @@
 
     <!--controllers-->
     <script src="./scripts/states/onboarding/onboardingCtrl.js"></script>
-    <script src="./scripts/states/casual/casualCtrl.js"></script>   
+    <script src="./scripts/states/casual/casualCtrl.js"></script>
+    <script src="./scripts/states/race/raceCtrl.js"></script>
+    <script src="./scripts/states/finish/finishCtrl.js"></script>
 
     <!--services-->
     <script src="./scripts/components/validIPAddress/ipValidationDirective.js"></script>
@@ -36,10 +38,14 @@
 
 </head>
 
-<body ng-app="app" ng-clock="">
-    <div class="wrapper">        
-        <ui-view></ui-view>
+<div class= "container-fluid p-3 my-3 border">
+
+    <body ng-app="app" ng-clock="">
+        <div class="wrapper">    
+            <ui-view></ui-view>
+        </div>
+    </body>
+    
     </div>
-</body>
 
 </html>

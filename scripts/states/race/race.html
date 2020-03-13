@@ -1,21 +1,30 @@
-<uiview>
-  <div class="race">
-    <div id="test">
-      <script type="text/javascript">
-      document.getElementById('test').innerHTML = 
-     "Nickname: " + sessionStorage.getItem('nickname');
-      </script>
+<!--Exit Buttons-->
+<input type="button" id="exit" value="x" ng-click="race.stop()"></input><br>
+<header>
+    <h1>Race Mode</h1>
+</header>
+<!--Car information kept in info such as weapon box and action box-->
+<div id="info">
+    <!--unique stores nickname entered on onboarding and displays it-->
+    <div id="unique"></div><br>
+    <div id="action-box">
+        <b>Action Box</b>
+        <div id="action">No weapon has been used yet</div>
     </div>
-        <div id="weapon">
-
+    <div id="laps-completed">Lap: 1/15</div>
+    <div id="current-lap1">Current Lap: 00:00:00</div>
+    <div id="fastest-lap">Fastest Lap: 00:00:00</div>
+    <div id="weapon-box">
+        <b>Weapon Box</b><br>
+        <div>
+            <button id="weapon-select" ng-click="race.fireSpecialWeapon(resource.id)" onClick="buttonDisable()"></button>
         </div>
-    <h2>Race</h2>
-    <p1>Vroom vroom</p1>
-    <khs></khs>
-    <ul class ="list-unstyled">
-      <a ui-sref="win"><li>win</li></a>
-      <a ui-sref="lose"><li>lose</li></a>
-    </ul>
-    <button ng-click="$state.go('onboarding')">Exit</button>
-  </div>
-</uiview>
+    </div>    
+</div>
+<!--Car controls are the throttle and throtte slider as well as showing if there has been an error-->
+<div id="car-controls">
+    <div id="channel"></div><br>
+    <span ng-bind="race.throttle" ng-show="!race.throttleError"></span>
+    <span ng-show="race.throttleError">Error</span><br>   
+    <input type="range" min="0" max="100" value="0" orient="vertical" class="throttle" ng-model="race.throttle">    
+</div>

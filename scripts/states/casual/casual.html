@@ -1,6 +1,9 @@
-<!--Exit Button-->
+<!--Challenge and Exit Buttons-->
+<input type="button" id="challenge" value="Race Mode" ng-click="casual.sendChallenge()"></input>
 <input type="button" id="exit" value="x" ng-click="casual.stop()"></input><br>
-<h1>Mobile Scalextric</h1>
+<header>
+    <h1>Casual Mode</h1>
+</header>
 <!--Car information kept in info such as weapon box and action box-->
 <div id="info">
     <!--unique stores nickname entered on onboarding and displays it-->
@@ -8,21 +11,25 @@
     <div id="action-box">
         <b>Action Box</b>
         <div id="action">No weapon has been used yet</div>
+        <div ng-show="casual.showButtons">
+            <input type="button" id="accept" value="Accept" ng-click="casual.acceptRace()"></input>
+            <input type="button" id="reject" value="Reject" ng-click="casual.rejectRace()"></input>
+        </div>
     </div>
-    <div id="laps-completed">Lap: 0</div>
-    <div id="current-lap">Current Lap:</div>
-    <div id="fastest-lap">Fastest Lap:</div>
+    <div id="laps-completed">Laps completed: 0</div>
+    <div id="current-lap">Current Lap: 00:00:00</div>
+    <div id="fastest-lap">Fastest Lap: 00:00:00</div>
     <div id="weapon-box">
         <b>Weapon Box</b><br>
         <div>
             <button id="weapon-select" ng-click="casual.fireSpecialWeapon(resource.id)" onClick="buttonDisable()"></button>
         </div>
-    </div>    
+    </div>
 </div>
 <!--Car controls are the throttle and throtte slider as well as showing if there has been an error-->
 <div id="car-controls">
     <div id="channel"></div><br>
     <span ng-bind="casual.throttle" ng-show="!casual.throttleError"></span>
-    <span ng-show="casual.throttleError">Error</span>    
+    <span ng-show="casual.throttleError">Error</span><br>
     <input type="range" min="0" max="100" value="0" orient="vertical" class="throttle" ng-model="casual.throttle">    
 </div>

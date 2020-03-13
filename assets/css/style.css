@@ -1,22 +1,31 @@
-body{
-    font-family: "Verdana";
-    background-color: #4d75b3;/*blue*/
-    color: white;
-    text-align: center;
+body{  
+  background-color: #000000;
+  font-family: "Verdana";
+  color: white;
+  text-align: center;
 }
 
-.wrapper{
-    background-color: #f44336;/*red*/
-    border: solid white;
-    height: 97vh;
+header{  
+  background-color: #4c5e61;
+  border: solid white;
+  border-radius: 5vh;
+  padding:2vh;
+  margin-bottom: 5vh;
+  margin-top: 5%;
+}
+
+.wrapper{  
+  background-color: #748c91;
+  border: solid rgb(255, 255, 255);
+  border-radius: 5vh;
+  height: 97vh;/* margin default 3vh(viewpoint height) so 100-3=97 to fit screen*/
 }
 
 .throttle{
-    writing-mode: bt-lr; /* IE */
-    -webkit-appearance: slider-vertical; /* WebKit */
-    width: 8px;
-    height: 50vh;
-    padding: 0 5px;
+  -webkit-appearance: slider-vertical;
+  width: 5vh;
+  height: 50vh;
+  padding: 0 5vh;
 }
 
 #info{
@@ -25,28 +34,33 @@ body{
 }
 
 #action-box{
+  background-color: #4c5e61;  
+  border-radius: 2vh;
+  border: solid white;
+  margin: 2vh;
   padding-top: 2vh;
-  padding-bottom: 2vh;
-  margin-left:2vh;
-  margin-right:2vh;
-  background-color: #4d75b3;/*blue*/;
+  padding-bottom: 2vh;  
 }
 
 #weapon-box{
-  margin-top: 10vh;
-  margin-left:2vh;
-  margin-right:2vh;
+  background-color: #4c5e61;
+  border-radius: 2vh;
+  border: solid white;
+  margin: 2vh;
+  margin-top: 5vh;
   padding-top: 2vh;
-  padding-bottom: 2vh;
-  background-color: #4d75b3;/*blue*/;
+  padding-bottom: 2vh;  
 }
 
-#car-contols{
-  margin-left: 50%;
-}
 
 #exit{
   position: absolute;
-  right: 4%;
-  top: 2%;
+  right: 6%;
+  top: 3%;
+}
+
+#challenge{
+  position: absolute;
+  left: 6%;
+  top: 3%;
 }

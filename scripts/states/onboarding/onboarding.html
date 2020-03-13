@@ -1,6 +1,8 @@
-<h1>Mobile Scalextric</h1>
+<header>
+    <h1>Mobile Scalextric</h1>
+</header>
 <form name="setup_form" ng-submit="onboarding.go(setup_form.$valid)">
-    Name <input type="text" id="name" required></input><br>
+    Name <input type="text" id="name" maxlength="3" onkeyup="this.value = this.value.toUpperCase();" required></input><br>
     Team <select ng-model="onboarding.channel" ng-options="x for (x,y) in onboarding.channels" required></select> <br>
     <input type="submit" value="Go" ng-disabled="steup_form.$invalid"></input>
 </form>
